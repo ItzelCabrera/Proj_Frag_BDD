@@ -87,14 +87,35 @@ go
 
 /* b) Determinar el producto más solicitado para la región (atributo group de salesterritory) 
    “Noth America” y en que territorio de la región tiene mayor demanda. */
+select top 1 aux.ProductID,  solicitados from(
+	select ProductID, count(*) as solicitados 
+	from Sales.SalesOrderDetail
+	where SalesOrderID = 
+	(	select SalesOrderID from Sales.SalesOrderHeader
+		where TerritoryID= (select TerritoryID from Sales.SalesTerritory where Group = "North America")
+	)
+) as aux 
+order by aux.solicitados desc;
 
+select top 1 aux.ProductID,  solicitados from(
+	select ProductID, count(*) as solicitados 
+	from Sales.SalesOrderDetail
+	group by ProductID) as aux 
+order by aux.solicitados desc;
 
 /* c) Actualizar el stock disponible en un 5% de los productos de la categoría que se provea como argumento de entrada en una 
 localidad que se provea como entrada en la instrucción de actualización. */ 
 
 
 /* d) Determinar si hay clientes que realizan ordenes en territorios diferentes al que se encuentran. */ 
+select *
+from Sales.SalesOrderHeader
 
+select count(*) as cuenta from(
+select CustomerID
+from Sales.SalesOrderHeader
+where BillToAddressID != ShipToAddressID
+group by CustomerID) as aux
 
 /* e) Actualizar la cantidad de productos de una orden que se provea como argumento en la instrucción de actualización. */ 
 
@@ -103,4 +124,5 @@ localidad que se provea como entrada en la instrucción de actualización. */
 
 
 /* g) Actualizar el correo electrónico de una cliente que se reciba como argumento en la instrucción de actualización. */
+
 
