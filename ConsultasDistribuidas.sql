@@ -158,5 +158,23 @@ go
 
 
 /* g) Actualizar el correo electrónico de una cliente que se reciba como argumento en la instrucción de actualización. */
+go
+create procedure cg_updateEmail (@customerID int,@newEmail nvarchar(50)) as
+begin
+	if exists(select * from AdventureWorks2019.Sales.Customer
+	where CustomerID = @customerID and PersonID is not null)
+		begin
+			update AdventureWorks2019.Person.EmailAddress	
+			set EmailAddress = @newEmail
+			where BusinessEntityID = (
+					select PersonID from AdventureWorks2019.Sales.Customer
+					where CustomerID = @customerID)
+		end
+	else
+		begin
+			select null
+		end
+end
+go	
 
-
+exec cg_updateEmail 11000,'adal@gmail.com'
