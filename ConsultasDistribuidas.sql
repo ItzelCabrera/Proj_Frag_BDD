@@ -119,12 +119,14 @@ group by CustomerID) as aux
 
 /* e) Actualizar la cantidad de productos de una orden que se provea como argumento en la instrucción de actualización. */ 
 go
+drop procedure ce_updateSales
+go
 create procedure ce_updateSales (@qty int,@salesID int, @productID int) as
 begin
-	if exists(select * from AdventureWorks2019.Sales.SalesOrderDetail 
+	if exists(select * from [LS_AW_SALES].Sales.SalesOrderDetail 
 		where SalesOrderID = @salesID and ProductID = @productID)
 		begin
-			update AdventureWorks2019.Sales.SalesOrderDetail 
+			update [LW_AW_SALES].Sales.SalesOrderDetail 
 			set OrderQty = OrderQty + @qty
 			where SalesOrderID = @salesID and ProductID = @productID
 		end
@@ -140,10 +142,10 @@ go
 /* f) Actualizar el método de envío de una orden que se reciba como argumento en la instrucción de actualización. */
 create procedure cf_updateShip (@method int,@salesID int) as
 begin
-	if exists(select * from AdventureWorks2019.Purchasing.ShipMethod
+	if exists(select * from [LS_AW_OTHERS].Purchasing.ShipMethod
 		where ShipMethodID = @method)
 		begin
-			update AdventureWorks2019.Sales.SalesOrderHeader
+			update [LS_AW_SALES].Sales.SalesOrderHeader
 			set ShipMethodID = @method
 			where SalesOrderID = @salesID
 		end
