@@ -119,33 +119,56 @@ group by CustomerID) as aux
 
 /* e) Actualizar la cantidad de productos de una orden que se provea como argumento en la instrucción de actualización. */ 
 go
-drop procedure ce_updateSales
+
+update AdventureWorks2019.Sales.SalesOrderDetail 
+			set OrderQty = OrderQty + 1
+			where SalesOrderID = 43659 and ProductID = 776
 go
 create procedure ce_updateSales (@qty int,@salesID int, @productID int) as
 begin
-	if exists(select * from [LS_AW_SALES].Sales.SalesOrderDetail 
+	
+	if exists(select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail 
 		where SalesOrderID = @salesID and ProductID = @productID)
 		begin
-			update [LW_AW_SALES].Sales.SalesOrderDetail 
-			set OrderQty = OrderQty + @qty
-			where SalesOrderID = @salesID and ProductID = @productID
+			if exists(select top 1 LocationID from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
+						where ProductID = @productID and Quantity >= @qty )
+				begin
+					--actualizando venta
+					update [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail 
+					set OrderQty = OrderQty + @qty
+					where SalesOrderID = @salesID and ProductID = @productID
+
+					declare @locationID int
+					set @locationID = (select top 1 LocationID from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
+						where ProductID = @productID and Quantity >= @qty) --asignando a que locación se le retirará stock
+
+					--actualizando stock
+					update [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
+					set Quantity = Quantity - @qty
+					where ProductID = @productID and LocationID = @locationID
+				end
+			else
+				begin 
+					select null --en el caso de que no existan productos en existencia
+				end
+
 		end
 	else
 		begin
-			select null
+			select null --en caso de que el producto u orden no existen
 		end
 	
 end
 go
---exec ce_updateSales 5,43659,776
+exec ce_updateSales 1,43659,776
 
 /* f) Actualizar el método de envío de una orden que se reciba como argumento en la instrucción de actualización. */
 create procedure cf_updateShip (@method int,@salesID int) as
 begin
-	if exists(select * from [LS_AW_OTHERS].Purchasing.ShipMethod
+	if exists(select * from [LS_AW_OTHERS].AW_Others.Purchasing.ShipMethod
 		where ShipMethodID = @method)
 		begin
-			update [LS_AW_SALES].Sales.SalesOrderHeader
+			update [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader
 			set ShipMethodID = @method
 			where SalesOrderID = @salesID
 		end
