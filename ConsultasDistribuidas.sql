@@ -118,9 +118,43 @@ where BillToAddressID != ShipToAddressID
 group by CustomerID) as aux
 
 /* e) Actualizar la cantidad de productos de una orden que se provea como argumento en la instrucción de actualización. */ 
-
+go
+create procedure ce_updateSales (@qty int,@salesID int, @productID int) as
+begin
+	if exists(select * from AdventureWorks2019.Sales.SalesOrderDetail 
+		where SalesOrderID = @salesID and ProductID = @productID)
+		begin
+			update AdventureWorks2019.Sales.SalesOrderDetail 
+			set OrderQty = OrderQty + @qty
+			where SalesOrderID = @salesID and ProductID = @productID
+		end
+	else
+		begin
+			select null
+		end
+	
+end
+go
+--exec ce_updateSales 5,43659,776
 
 /* f) Actualizar el método de envío de una orden que se reciba como argumento en la instrucción de actualización. */
+create procedure cf_updateShip (@method int,@salesID int) as
+begin
+	if exists(select * from AdventureWorks2019.Purchasing.ShipMethod
+		where ShipMethodID = @method)
+		begin
+			update AdventureWorks2019.Sales.SalesOrderHeader
+			set ShipMethodID = @method
+			where SalesOrderID = @salesID
+		end
+	else
+		begin
+			select null
+		end
+	
+end
+go	
+--exec cf_updateShip 3,43659
 
 
 /* g) Actualizar el correo electrónico de una cliente que se reciba como argumento en la instrucción de actualización. */
