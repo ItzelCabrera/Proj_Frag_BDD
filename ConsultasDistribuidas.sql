@@ -161,13 +161,13 @@ go
 go
 create procedure cg_updateEmail (@customerID int,@newEmail nvarchar(50)) as
 begin
-	if exists(select * from AdventureWorks2019.Sales.Customer
+	if exists(select * from [LS_AW_SALES].AW_Sales.Sales.Customer
 	where CustomerID = @customerID and PersonID is not null)
 		begin
-			update AdventureWorks2019.Person.EmailAddress	
+			update [LS_AW_OTHERS].AW_Others.Person.EmailAddress	
 			set EmailAddress = @newEmail
 			where BusinessEntityID = (
-					select PersonID from AdventureWorks2019.Sales.Customer
+					select PersonID from [LS_AW_SALES].AW_Sales.Sales.Customer
 					where CustomerID = @customerID)
 		end
 	else
@@ -177,4 +177,4 @@ begin
 end
 go	
 
-exec cg_updateEmail 11000,'adal@gmail.com'
+exec cg_updateEmail 11000,'cass@gmail.com'
