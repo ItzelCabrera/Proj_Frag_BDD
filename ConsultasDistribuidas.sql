@@ -92,7 +92,7 @@ select top 1 aux.ProductID,  solicitados from(
 	from Sales.SalesOrderDetail
 	where SalesOrderID = 
 	(	select SalesOrderID from Sales.SalesOrderHeader
-		where TerritoryID= (select TerritoryID from Sales.SalesTerritory where Group = "North America")
+		where TerritoryID= (select TerritoryID from Sales.SalesTerritory where [Group] = "North America")
 	)
 ) as aux 
 order by aux.solicitados desc;

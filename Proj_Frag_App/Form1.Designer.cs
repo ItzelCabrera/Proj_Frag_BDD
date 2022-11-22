@@ -41,7 +41,7 @@ namespace Proj_Frag_App
             // rbtn1
             // 
             this.rbtn1.AutoSize = true;
-            this.rbtn1.Location = new System.Drawing.Point(377, 33);
+            this.rbtn1.Location = new System.Drawing.Point(194, 31);
             this.rbtn1.Name = "rbtn1";
             this.rbtn1.Size = new System.Drawing.Size(17, 16);
             this.rbtn1.TabIndex = 0;
@@ -51,7 +51,7 @@ namespace Proj_Frag_App
             // rbtn2
             // 
             this.rbtn2.AutoSize = true;
-            this.rbtn2.Location = new System.Drawing.Point(377, 60);
+            this.rbtn2.Location = new System.Drawing.Point(194, 58);
             this.rbtn2.Name = "rbtn2";
             this.rbtn2.Size = new System.Drawing.Size(17, 16);
             this.rbtn2.TabIndex = 1;
@@ -61,7 +61,7 @@ namespace Proj_Frag_App
             // rbtn3
             // 
             this.rbtn3.AutoSize = true;
-            this.rbtn3.Location = new System.Drawing.Point(377, 87);
+            this.rbtn3.Location = new System.Drawing.Point(194, 85);
             this.rbtn3.Name = "rbtn3";
             this.rbtn3.Size = new System.Drawing.Size(17, 16);
             this.rbtn3.TabIndex = 2;
@@ -71,7 +71,7 @@ namespace Proj_Frag_App
             // rbtn4
             // 
             this.rbtn4.AutoSize = true;
-            this.rbtn4.Location = new System.Drawing.Point(377, 114);
+            this.rbtn4.Location = new System.Drawing.Point(194, 112);
             this.rbtn4.Name = "rbtn4";
             this.rbtn4.Size = new System.Drawing.Size(17, 16);
             this.rbtn4.TabIndex = 3;
@@ -80,7 +80,7 @@ namespace Proj_Frag_App
             // 
             // btnUPDATE
             // 
-            this.btnUPDATE.Location = new System.Drawing.Point(48, 60);
+            this.btnUPDATE.Location = new System.Drawing.Point(45, 51);
             this.btnUPDATE.Name = "btnUPDATE";
             this.btnUPDATE.Size = new System.Drawing.Size(110, 23);
             this.btnUPDATE.TabIndex = 4;
@@ -90,7 +90,7 @@ namespace Proj_Frag_App
             // 
             // btnREAD
             // 
-            this.btnREAD.Location = new System.Drawing.Point(48, 90);
+            this.btnREAD.Location = new System.Drawing.Point(45, 81);
             this.btnREAD.Name = "btnREAD";
             this.btnREAD.Size = new System.Drawing.Size(110, 23);
             this.btnREAD.TabIndex = 5;
@@ -102,14 +102,14 @@ namespace Proj_Frag_App
             // 
             this.panel1.Location = new System.Drawing.Point(30, 148);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(723, 263);
+            this.panel1.Size = new System.Drawing.Size(924, 293);
             this.panel1.TabIndex = 6;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(982, 453);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.btnREAD);
             this.Controls.Add(this.btnUPDATE);
@@ -117,8 +117,9 @@ namespace Proj_Frag_App
             this.Controls.Add(this.rbtn3);
             this.Controls.Add(this.rbtn2);
             this.Controls.Add(this.rbtn1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "App Consultas Distribuidas";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
