@@ -106,16 +106,31 @@ order by aux.solicitados desc;
 /* c) Actualizar el stock disponible en un 5% de los productos de la categoría que se provea como argumento de entrada en una 
 localidad que se provea como entrada en la instrucción de actualización. */ 
 
+select *
+from Production.ProductInventory as pii
+where pii.LocationID = @localidad and
+ProductID in (
+	select ProductID
+	from Production.ProductSubcategory
+	where ProductCategoryID = @cat
+)
 
 /* d) Determinar si hay clientes que realizan ordenes en territorios diferentes al que se encuentran. */ 
-select *
-from Sales.SalesOrderHeader
+select [name]
+from Sales.SalesTerritory
 
-select count(*) as cuenta from(
-select CustomerID
-from Sales.SalesOrderHeader
-where BillToAddressID != ShipToAddressID
-group by CustomerID) as aux
+select * from(
+(select ShipToAddressID, TerritoryID
+from Sales.SalesOrderHeader) as soh
+inner join
+	(select AddressID, StateProvinceID
+	from Person.Address) as pa
+on soh.ShipToAddressID = pa.AddressID
+inner join 
+	(select StateProvinceID, TerritoryID
+	from Person.StateProvince) as ps
+on pa.StateProvinceID = ps.StateProvinceID)
+where soh.TerritoryID != ps.TerritoryID
 
 /* e) Actualizar la cantidad de productos de una orden que se provea como argumento en la instrucción de actualización. */ 
 
