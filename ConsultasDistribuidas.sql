@@ -108,12 +108,42 @@ localidad que se provea como entrada en la instrucción de actualización. */
 
 select *
 from Production.ProductInventory as pii
-where pii.LocationID = @localidad and
+where pii.LocationID = 60 and
 ProductID in (
 	select ProductID
 	from Production.ProductSubcategory
-	where ProductCategoryID = @cat
+	where ProductCategoryID = 1
 )
+
+go
+create or alter procedure cc_updateLocation (@localidad int, @cat int) as
+begin
+	if exists(select *
+		from Production.ProductInventory as pii
+		where pii.LocationID = @localidad and
+		ProductID in (
+			select ProductID
+			from Production.ProductSubcategory
+			where ProductCategoryID = @cat
+		)) 
+		begin
+			update Production.ProductInventory
+			set Quantity = Quantity + ROUND((Quantity * 0.05), 0)
+			from Production.ProductInventory as pii
+			where pii.LocationID = @localidad and
+			ProductID in (
+				select ProductID
+				from Production.ProductSubcategory
+				where ProductCategoryID = @cat
+			)
+		end
+	else
+		begin
+			print 'No se encuentra ningun producto en esa localidad'
+		end
+end
+
+exec cc_updateLocation @localidad = 60, @cat = 1
 
 /* d) Determinar si hay clientes que realizan ordenes en territorios diferentes al que se encuentran. */ 
 
