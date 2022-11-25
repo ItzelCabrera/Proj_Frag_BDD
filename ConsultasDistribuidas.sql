@@ -1,6 +1,6 @@
 /* a) Determinar el total de las ventas de los productos con la categoría que se provea de argumento de entrada en la consulta,
    para cada uno de los territorios registrados en la base de datos. */ 
-go
+go				
 
 -- local 
 select soh.TerritoryID, sum(t.LineTotal) as total_venta
@@ -53,32 +53,30 @@ order by soh.TerritoryID
 go
 
 -- procedimiento almacenado
-create procedure consulta_a (@cat varchar(5)) as
+create procedure ca_selectTotalProd (@cat varchar(5)) as
 begin
-	declare @sql_string varchar(max)
-	set @sql_string = 'select soh.TerritoryID, sum(t.LineTotal) as total_venta
-		from AdventureWorks2019.sales.SalesOrderHeader soh
-		inner join
-		(select salesorderid, productid, orderqty, linetotal
-		from AdventureWorks2019. sales.salesorderdetail sod
-		where ProductID in (
-				select productid
-				from AdventureWorks2019.Production.Product
-				where ProductSubcategoryID in (
-					select ProductSubcategoryID
-					from AdventureWorks2019.Production.ProductSubcategory
-					where ProductCategoryID in (
-						select ProductCategoryID
-						from AdventureWorks2019.Production.ProductCategory
-						where ProductCategoryID = '+ @cat +'
-						)
+	select soh.TerritoryID, sum(t.LineTotal) as total_venta
+	from [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader soh
+	inner join
+	(select salesorderid, productid, orderqty, linetotal
+	from [LS_AW_SALES].AW_Sales.Sales.salesorderdetail sod
+	where ProductID in (
+			select productid
+			from [LS_AW_PRODUCTION].AW_Production.Production.Product
+			where ProductSubcategoryID in (
+				select ProductSubcategoryID
+				from [LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory
+				where ProductCategoryID in (
+					select ProductCategoryID
+					from [LS_AW_PRODUCTION].AW_Production.Production.ProductCategory
+					where ProductCategoryID = @cat 
 					)
-			)
-		) as T
-		on soh.SalesOrderID = t.SalesOrderID
-		group by soh.TerritoryID
-		order by soh.TerritoryID'
-	exec(@sql_string)
+				)
+		)
+	) as T
+	on soh.SalesOrderID = t.SalesOrderID
+	group by soh.TerritoryID
+	order by soh.TerritoryID
 end
 go
 
@@ -92,7 +90,7 @@ select top 1 aux.ProductID,  solicitados from(
 	from Sales.SalesOrderDetail
 	where SalesOrderID = 
 	(	select SalesOrderID from Sales.SalesOrderHeader
-		where TerritoryID= (select TerritoryID from Sales.SalesTerritory where Group = "North America")
+		where TerritoryID= (select TerritoryID from Sales.SalesTerritory where [Group] = "North America")
 	)
 ) as aux 
 order by aux.solicitados desc;
@@ -164,12 +162,6 @@ on pa.StateProvinceID = ps.StateProvinceID)
 where soh.TerritoryID != ps.TerritoryID
 
 /* e) Actualizar la cantidad de productos de una orden que se provea como argumento en la instrucción de actualización. */ 
-go
-
-update AdventureWorks2019.Sales.SalesOrderDetail 
-			set OrderQty = OrderQty + 1
-			where SalesOrderID = 43659 and ProductID = 776
-go
 create procedure ce_updateSales (@qty int,@salesID int, @productID int) as
 begin
 	
@@ -203,10 +195,17 @@ begin
 		begin
 			select null --en caso de que el producto u orden no existen
 		end
-	
 end
 go
+
 exec ce_updateSales 1,43659,776
+go
+
+select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail 
+where SalesOrderID = 43659 and ProductID = 776
+go
+
+
 
 /* f) Actualizar el método de envío de una orden que se reciba como argumento en la instrucción de actualización. */
 create procedure cf_updateShip (@method int,@salesID int) as
@@ -222,14 +221,19 @@ begin
 		begin
 			select null
 		end
-	
 end
 go	
---exec cf_updateShip 3,43659
+
+exec cf_updateShip 3,43659
+go
+
+select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader
+where SalesOrderID = 43659
+go
+
 
 
 /* g) Actualizar el correo electrónico de una cliente que se reciba como argumento en la instrucción de actualización. */
-go
 create procedure cg_updateEmail (@customerID int,@newEmail nvarchar(50)) as
 begin
 	if exists(select * from [LS_AW_SALES].AW_Sales.Sales.Customer
@@ -248,4 +252,11 @@ begin
 end
 go	
 
-exec cg_updateEmail 11000,'cass@gmail.com'
+exec cg_updateEmail 11000,'skrr@gmail.com'
+go
+
+select * from [LS_AW_OTHERS].AW_Others.Person.EmailAddress
+where BusinessEntityID = (
+	select PersonID from [LS_AW_SALES].AW_Sales.Sales.Customer
+	where CustomerID = 11000)
+go
