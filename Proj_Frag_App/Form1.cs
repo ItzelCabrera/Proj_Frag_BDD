@@ -149,6 +149,8 @@ namespace Proj_Frag_App
         {
             SqlCommand com = new SqlCommand("", conn);
             int resultado = 0;
+            var select = "";
+            var ds = new DataSet();
 
             try
             {
@@ -171,6 +173,13 @@ namespace Proj_Frag_App
                                 conn.Open();
                                 resultado = com.ExecuteNonQuery();
                                 conn.Close();
+                                //vaciar el resultado en el datagrid
+                                select = "select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail " +
+                                    "where SalesOrderID = "+ txtCE2.Text + " and ProductID = " + txtCE3.Text;
+                                var dataAdapter_E = new SqlDataAdapter(select, conn);
+                                dataAdapter_E.Fill(ds);
+                                dataGV.ReadOnly = true;
+                                dataGV.DataSource = ds.Tables[0];
                                 break;
                             case 3:
                                 // CONSULTA F
@@ -181,6 +190,12 @@ namespace Proj_Frag_App
                                 conn.Open();
                                 resultado = com.ExecuteNonQuery();
                                 conn.Close();
+                                //vaciar el resultado en el datagrid
+                                select = "select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader where SalesOrderID = " + txtCF2.Text;
+                                var dataAdapter_F = new SqlDataAdapter(select, conn);
+                                dataAdapter_F.Fill(ds);
+                                dataGV.ReadOnly = true;
+                                dataGV.DataSource = ds.Tables[0];
                                 break;
                             case 4:
                                 // CONSULTA G
@@ -191,6 +206,13 @@ namespace Proj_Frag_App
                                 conn.Open();
                                 resultado = com.ExecuteNonQuery();
                                 conn.Close();
+                                //vaciar el resultado en el datagrid
+                                select = "select * from [LS_AW_OTHERS].AW_Others.Person.EmailAddress where BusinessEntityID = " +
+                                    "(select PersonID from [LS_AW_SALES].AW_Sales.Sales.Customer where CustomerID = " + txtCG1.Text + ")";
+                                var dataAdapter_G = new SqlDataAdapter(select, conn);
+                                dataAdapter_G.Fill(ds);
+                                dataGV.ReadOnly = true;
+                                dataGV.DataSource = ds.Tables[0];
                                 break;
                         }
                         break;
@@ -200,12 +222,32 @@ namespace Proj_Frag_App
                         {
                             case 1:
                                 // CONSULTA A
+                                /*  
                                 com.CommandText = "ca_selectTotalProd";
                                 com.CommandType = CommandType.StoredProcedure;
                                 com.Parameters.AddWithValue("@cat", txtCA1.Text).Direction = ParameterDirection.Input;
                                 conn.Open();
                                 resultado = com.ExecuteNonQuery();
-                                conn.Close();
+                                var dataAdapter_A = new SqlDataAdapter(com);
+                                dataAdapter_A.Fill(ds);
+                                dataGV.ReadOnly = true;
+                                dataGV.DataSource = ds.Tables[0];
+                                conn.Close();*/
+
+                                conn.Open();
+                                using (SqlCommand cmd = new SqlCommand("ca_selectTotalProd", conn))
+                                {
+                                    cmd.CommandType = CommandType.StoredProcedure;
+                                    cmd.Parameters.AddWithValue("@cat", txtCA1.Text).Direction = ParameterDirection.Input;
+
+                                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                                    { 
+
+                                        da.Fill(ds);
+                                        dataGV.DataSource = ds.Tables[0];
+                                    }
+                                }
+
                                 break;
                             case 2:
                                 // CONSULTA
@@ -229,6 +271,7 @@ namespace Proj_Frag_App
             catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                conn.Close();
             }
         }
 

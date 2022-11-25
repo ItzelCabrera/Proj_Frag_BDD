@@ -11,7 +11,7 @@ namespace Proj_Frag_App
     {
         public static SqlConnection conectaSQL()
         {
-            SqlConnection conn = new SqlConnection(@"Data Source=.;Initial Catalog=master;Integrated Security=true");
+            SqlConnection conn = new SqlConnection(@"Data Source=.;Initial Catalog=master;Integrated Security=true;Connection Timeout = 150;");
             return conn;
         }
 

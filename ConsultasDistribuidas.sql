@@ -80,7 +80,7 @@ begin
 end
 go
 
-exec consulta_a '1'
+exec ca_selectTotalProd '1'
 go
 
 /* b) Determinar el producto más solicitado para la región (atributo group de salesterritory) 
@@ -162,6 +162,7 @@ on pa.StateProvinceID = ps.StateProvinceID)
 where soh.TerritoryID != ps.TerritoryID
 
 /* e) Actualizar la cantidad de productos de una orden que se provea como argumento en la instrucción de actualización. */ 
+drop procedure ce_updateSales
 create procedure ce_updateSales (@qty int,@salesID int, @productID int) as
 begin
 	
