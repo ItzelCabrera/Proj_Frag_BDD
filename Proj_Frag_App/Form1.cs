@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.SqlClient;
+using System.Configuration;
 
 namespace Proj_Frag_App
 {
@@ -26,7 +27,7 @@ namespace Proj_Frag_App
         private void Form1_Load(object sender, EventArgs e)
         {
             rbtn1.Visible = rbtn2.Visible = rbtn3.Visible = rbtn4.Visible = false;
-            pnlConA.Visible = pnlConE.Visible = pnlConF.Visible = pnlConG.Visible = false;
+            pnlConA.Visible = pnlConC.Visible = pnlConE.Visible = pnlConF.Visible = pnlConG.Visible = false;
             btnGO.Enabled = false;
         }
 
@@ -37,6 +38,7 @@ namespace Proj_Frag_App
             rbtn3.Text = "Actualizar el método de envío de una orden.";
             rbtn4.Text = "Actualizar el correo electrónico de una cliente.";
             rbtn1.Visible = rbtn2.Visible = rbtn3.Visible = rbtn4.Visible = true;
+            hide_options();
             tipo = 1; 
         }
 
@@ -47,7 +49,14 @@ namespace Proj_Frag_App
             rbtn3.Text = "Determinar si hay clientes que realizan ordenes en territorios diferentes al que se encuentran.";
             rbtn1.Visible = rbtn2.Visible = rbtn3.Visible = true;
             rbtn4.Visible = false;
+            hide_options();
             tipo = 2;
+
+        }
+
+        public void hide_options() {
+            rbtn1.Checked = rbtn2.Checked = rbtn3.Checked = rbtn4.Checked = false;
+            pnlConA.Visible = pnlConC.Visible = pnlConE.Visible = pnlConF.Visible = pnlConG.Visible = false;
         }
 
         private void rbtn1_CheckedChanged(object sender, EventArgs e)
@@ -92,7 +101,7 @@ namespace Proj_Frag_App
 
         public void pnl_Refresh() 
         {
-            pnlConA.Visible = pnlConE.Visible = pnlConF.Visible = pnlConG.Visible = false;
+            pnlConA.Visible = pnlConC.Visible = pnlConE.Visible = pnlConF.Visible = pnlConG.Visible = false;
 
             if (tipo != 0 && consulta !=0)
             {
@@ -110,7 +119,8 @@ namespace Proj_Frag_App
                     switch (consulta)
                     {
                         case 1:
-                            // CONSULTA
+                            // CONSULTA C
+                            pnlConC.Visible = true;
                             break;
                         case 2:
                             // CONSULTA E
@@ -148,20 +158,38 @@ namespace Proj_Frag_App
         private void btnGO_Click(object sender, EventArgs e)
         {
             SqlCommand com = new SqlCommand("", conn);
+            DataSet ds = new DataSet();
+            String select = "";
             int resultado = 0;
-            var select = "";
-            var ds = new DataSet();
 
             try
             {
                 switch (tipo)
                 {
                     case 1:
-                        // UPDATE
+                        // UPDATE 
                         switch (consulta)
                         {
                             case 1:
-                                // CONSULTA
+                                // CONSULTA C
+                                com.CommandText = "cc_updateLocation";
+                                com.CommandType = CommandType.StoredProcedure;
+                                com.Parameters.AddWithValue("@cat", txtCC1.Text).Direction = ParameterDirection.Input;
+                                com.Parameters.AddWithValue("@localidad", txtCC2.Text).Direction = ParameterDirection.Input;
+                                conn.Open();
+                                resultado = com.ExecuteNonQuery();
+                                conn.Close();
+                                //vaciar el resultado en el datagrid
+                                select = "select * from[LS_AW_PRODUCTION].AW_Production.Production.ProductInventory as pii " +
+                                    "where pii.LocationID = " + txtCC2.Text +
+                                    "ProductID in (" +
+                                    "select ProductID" +
+                                    "from[LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory" +
+                                    "where ProductCategoryID = " + txtCC1.Text + ")";
+                                var dataAdapter_C= new SqlDataAdapter(select, conn);
+                                dataAdapter_C.Fill(ds);
+                                dataGV.ReadOnly = true;
+                                dataGV.DataSource = ds.Tables[0];
                                 break;
                             case 2:
                                 // CONSULTA E
@@ -222,32 +250,17 @@ namespace Proj_Frag_App
                         {
                             case 1:
                                 // CONSULTA A
-                                /*  
                                 com.CommandText = "ca_selectTotalProd";
                                 com.CommandType = CommandType.StoredProcedure;
                                 com.Parameters.AddWithValue("@cat", txtCA1.Text).Direction = ParameterDirection.Input;
                                 conn.Open();
                                 resultado = com.ExecuteNonQuery();
-                                var dataAdapter_A = new SqlDataAdapter(com);
-                                dataAdapter_A.Fill(ds);
+                                conn.Close();
+                                //vaciar el resultado en el datagrid
+                                var dataAdapter_G = new SqlDataAdapter(com);
+                                dataAdapter_G.Fill(ds);
                                 dataGV.ReadOnly = true;
                                 dataGV.DataSource = ds.Tables[0];
-                                conn.Close();*/
-
-                                conn.Open();
-                                using (SqlCommand cmd = new SqlCommand("ca_selectTotalProd", conn))
-                                {
-                                    cmd.CommandType = CommandType.StoredProcedure;
-                                    cmd.Parameters.AddWithValue("@cat", txtCA1.Text).Direction = ParameterDirection.Input;
-
-                                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
-                                    { 
-
-                                        da.Fill(ds);
-                                        dataGV.DataSource = ds.Tables[0];
-                                    }
-                                }
-
                                 break;
                             case 2:
                                 // CONSULTA

@@ -53,7 +53,7 @@ order by soh.TerritoryID
 go
 
 -- procedimiento almacenado
-create procedure ca_selectTotalProd (@cat varchar(5)) as
+create procedure ca_selectTotalProd (@cat int) as
 begin
 	select soh.TerritoryID, sum(t.LineTotal) as total_venta
 	from [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader soh
@@ -80,7 +80,7 @@ begin
 end
 go
 
-exec ca_selectTotalProd '1'
+exec ca_selectTotalProd 1
 go
 
 /* b) Determinar el producto más solicitado para la región (atributo group de salesterritory) 
@@ -117,27 +117,27 @@ go
 create or alter procedure cc_updateLocation (@localidad int, @cat int) as
 begin
 	if exists(select *
-		from Production.ProductInventory as pii
+		from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory as pii
 		where pii.LocationID = @localidad and
 		ProductID in (
 			select ProductID
-			from Production.ProductSubcategory
+			from [LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory
 			where ProductCategoryID = @cat
 		)) 
 		begin
-			update Production.ProductInventory
+			update [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
 			set Quantity = Quantity + ROUND((Quantity * 0.05), 0)
-			from Production.ProductInventory as pii
+			from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory as pii
 			where pii.LocationID = @localidad and
 			ProductID in (
 				select ProductID
-				from Production.ProductSubcategory
+				from [LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory
 				where ProductCategoryID = @cat
 			)
 		end
 	else
 		begin
-			print 'No se encuentra ningun producto en esa localidad'
+			SELECT NULL
 		end
 end
 
@@ -161,8 +161,9 @@ inner join
 on pa.StateProvinceID = ps.StateProvinceID)
 where soh.TerritoryID != ps.TerritoryID
 
+
+
 /* e) Actualizar la cantidad de productos de una orden que se provea como argumento en la instrucción de actualización. */ 
-drop procedure ce_updateSales
 create procedure ce_updateSales (@qty int,@salesID int, @productID int) as
 begin
 	
