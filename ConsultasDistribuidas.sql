@@ -1,7 +1,7 @@
 /* a) Determinar el total de las ventas de los productos con la categoría que se provea de argumento de entrada en la consulta,
    para cada uno de los territorios registrados en la base de datos. */ 
 go				
-
+/*
 -- local 
 select soh.TerritoryID, sum(t.LineTotal) as total_venta
 from AdventureWorks2019.sales.SalesOrderHeader soh
@@ -51,9 +51,9 @@ on soh.SalesOrderID = t.SalesOrderID
 group by soh.TerritoryID
 order by soh.TerritoryID
 go
-
+*/
 -- procedimiento almacenado
-create procedure ca_selectTotalProd (@cat int) as
+create or alter procedure ca_selectTotalProd (@cat int) as
 begin
 	select soh.TerritoryID, sum(t.LineTotal) as total_venta
 	from [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader soh
@@ -62,7 +62,7 @@ begin
 	from [LS_AW_SALES].AW_Sales.Sales.salesorderdetail sod
 	where ProductID in (
 			select productid
-			from [LS_AW_PRODUCTION].AW_Production.Production.Product
+			from [LS_AW_PRODUCTION].AW_Production.Production.Product 
 			where ProductSubcategoryID in (
 				select ProductSubcategoryID
 				from [LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory
@@ -83,37 +83,40 @@ go
 exec ca_selectTotalProd 1
 go
 
+
+
 /* b) Determinar el producto más solicitado para la región (atributo group de salesterritory) 
    “Noth America” y en que territorio de la región tiene mayor demanda. */
-select top 1 aux.ProductID,  solicitados from(
-	select ProductID, count(*) as solicitados 
-	from Sales.SalesOrderDetail
-	where SalesOrderID = 
-	(	select SalesOrderID from Sales.SalesOrderHeader
-		where TerritoryID= (select TerritoryID from Sales.SalesTerritory where [Group] = "North America")
-	)
-) as aux 
-order by aux.solicitados desc;
+create or alter procedure cb_selectMostProd as
+begin
+	select top 1 sum(T.lineTotal) as total_ventas, p.[Name] as Nombre, p.ProductID
+	from [LS_AW_PRODUCTION].AW_Production.Production.Product p
+	inner join (
+		select ProductID, lineTotal
+		from [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail sod
+		where SalesOrderID in (
+			select SalesOrderID 
+			from [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader soh
+			where TerritoryID in (
+				select TerritoryID 
+				from [LS_AW_SALES].AW_Sales.Sales.SalesTerritory st
+				where [Group] = 'North America' )
+				)
+	) as T 
+	on 
+	p.ProductID = T.ProductID
+	group by p.[Name], p.ProductID
+	order by total_ventas desc
+end
+go 
 
-select top 1 aux.ProductID,  solicitados from(
-	select ProductID, count(*) as solicitados 
-	from Sales.SalesOrderDetail
-	group by ProductID) as aux 
-order by aux.solicitados desc;
+exec cb_selectMostProd
+go
+
+
 
 /* c) Actualizar el stock disponible en un 5% de los productos de la categoría que se provea como argumento de entrada en una 
 localidad que se provea como entrada en la instrucción de actualización. */ 
-
-select *
-from Production.ProductInventory as pii
-where pii.LocationID = 60 and
-ProductID in (
-	select ProductID
-	from Production.ProductSubcategory
-	where ProductCategoryID = 1
-)
-
-go
 create or alter procedure cc_updateLocation (@localidad int, @cat int) as
 begin
 	if exists(select *
@@ -140,31 +143,44 @@ begin
 			SELECT NULL
 		end
 end
+go
 
 exec cc_updateLocation @localidad = 60, @cat = 1
+go
+
+select *
+from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory as pii
+where pii.LocationID = 60 and
+ProductID in (
+	select ProductID
+	from [LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory
+	where ProductCategoryID = 1
+)
+go
+
+
 
 /* d) Determinar si hay clientes que realizan ordenes en territorios diferentes al que se encuentran. */ 
+create or alter procedure cd_TerritoryCli as
+begin
+	select c.TerritoryID as Territorio_Cli, soh.TerritoryID as Territorio_Ord
+	from [LS_AW_SALES].AW_Sales.Sales.Customer c
+	inner join 
+	[LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader soh
+	on c.CustomerID != soh.CustomerID
+	where soh.SalesOrderID in (select SalesOrderID from [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader 
+		where CustomerID = c.CustomerID)
+	group by c.TerritoryID, soh.TerritoryID
+end
+go
 
-select [name]
-from Sales.SalesTerritory
-
-select * from(
-(select ShipToAddressID, TerritoryID
-from Sales.SalesOrderHeader) as soh
-inner join
-	(select AddressID, StateProvinceID
-	from Person.Address) as pa
-on soh.ShipToAddressID = pa.AddressID
-inner join 
-	(select StateProvinceID, TerritoryID
-	from Person.StateProvince) as ps
-on pa.StateProvinceID = ps.StateProvinceID)
-where soh.TerritoryID != ps.TerritoryID
+exec cd_TerritoryCli
+go
 
 
 
 /* e) Actualizar la cantidad de productos de una orden que se provea como argumento en la instrucción de actualización. */ 
-create procedure ce_updateSales (@qty int,@salesID int, @productID int) as
+create or alter procedure ce_updateSales (@qty int, @salesID int, @productID int) as
 begin
 	
 	if exists(select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail 
@@ -210,7 +226,7 @@ go
 
 
 /* f) Actualizar el método de envío de una orden que se reciba como argumento en la instrucción de actualización. */
-create procedure cf_updateShip (@method int,@salesID int) as
+create or alter procedure cf_updateShip (@method int,@salesID int) as
 begin
 	if exists(select * from [LS_AW_OTHERS].AW_Others.Purchasing.ShipMethod
 		where ShipMethodID = @method)
@@ -236,7 +252,7 @@ go
 
 
 /* g) Actualizar el correo electrónico de una cliente que se reciba como argumento en la instrucción de actualización. */
-create procedure cg_updateEmail (@customerID int,@newEmail nvarchar(50)) as
+create or alter procedure cg_updateEmail (@customerID int,@newEmail nvarchar(50)) as
 begin
 	if exists(select * from [LS_AW_SALES].AW_Sales.Sales.Customer
 	where CustomerID = @customerID and PersonID is not null)

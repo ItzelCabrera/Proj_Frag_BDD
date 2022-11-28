@@ -102,7 +102,7 @@ namespace Proj_Frag_App
         public void pnl_Refresh() 
         {
             pnlConA.Visible = pnlConC.Visible = pnlConE.Visible = pnlConF.Visible = pnlConG.Visible = false;
-
+            dataGV.DataSource = null;
             if (tipo != 0 && consulta !=0)
             {
                 btnGO.Enabled = true;
@@ -143,12 +143,6 @@ namespace Proj_Frag_App
                         case 1:
                             // CONSULTA A
                             pnlConA.Visible = true;
-                            break;
-                        case 2:
-                            // CONSULTA
-                            break;
-                        case 3:
-                            // CONSULTA
                             break;
                     }
                     break;
@@ -254,7 +248,8 @@ namespace Proj_Frag_App
                                 com.CommandType = CommandType.StoredProcedure;
                                 com.Parameters.AddWithValue("@cat", txtCA1.Text).Direction = ParameterDirection.Input;
                                 conn.Open();
-                                resultado = com.ExecuteNonQuery();
+                                com.ExecuteNonQuery();
+                                resultado = 1;
                                 conn.Close();
                                 //vaciar el resultado en el datagrid
                                 var dataAdapter_G = new SqlDataAdapter(com);
@@ -263,10 +258,32 @@ namespace Proj_Frag_App
                                 dataGV.DataSource = ds.Tables[0];
                                 break;
                             case 2:
-                                // CONSULTA
+                                // CONSULTA B
+                                com.CommandText = "cb_selectMostProd";
+                                com.CommandType = CommandType.StoredProcedure;
+                                conn.Open();
+                                com.ExecuteNonQuery();
+                                resultado = 1;
+                                conn.Close();
+                                //vaciar el resultado en el datagrid
+                                var dataAdapter_B = new SqlDataAdapter(com);
+                                dataAdapter_B.Fill(ds);
+                                dataGV.ReadOnly = true;
+                                dataGV.DataSource = ds.Tables[0];
                                 break;
                             case 3:
-                                // CONSULTA
+                                // CONSULTA D
+                                com.CommandText = "cd_TerritoryCli";
+                                com.CommandType = CommandType.StoredProcedure;
+                                conn.Open();
+                                com.ExecuteNonQuery();
+                                resultado = 1;
+                                conn.Close();
+                                //vaciar el resultado en el datagrid
+                                var dataAdapter_D = new SqlDataAdapter(com);
+                                dataAdapter_D.Fill(ds);
+                                dataGV.ReadOnly = true;
+                                dataGV.DataSource = ds.Tables[0];
                                 break;
                         }
                         break;
@@ -287,6 +304,6 @@ namespace Proj_Frag_App
                 conn.Close();
             }
         }
-
+            
     }
 }
