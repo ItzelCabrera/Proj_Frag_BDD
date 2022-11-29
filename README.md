@@ -8,6 +8,10 @@ Proyecto sobre fragmentación por esquemas y consultas distribuidas
 - Hernandez Rodriguez Isaac Zuriel (oyente)
 
 ## Instrucciones
+1. Correr runconfig.sql en su instancia local de sql server
+2. Ejecutar la aplicación localizada en \Proj_Frag_App\bin\Debug\Proj_Frag_App.exe
+
+## Especificaciones del proyecto
 
 1. Considerando el modelo relacional de la base de datos AdventureWorks.
 
