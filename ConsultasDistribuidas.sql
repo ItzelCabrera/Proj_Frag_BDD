@@ -1,58 +1,72 @@
-/* a) Determinar el total de las ventas de los productos con la categoría que se provea de argumento de entrada en la consulta,
-   para cada uno de los territorios registrados en la base de datos. */ 
-go				
-/*
--- local 
-select soh.TerritoryID, sum(t.LineTotal) as total_venta
-from AdventureWorks2019.sales.SalesOrderHeader soh
-inner join
-(select salesorderid, productid, orderqty, linetotal
-from AdventureWorks2019. sales.salesorderdetail sod
-where ProductID in (
-		select productid
-		from AdventureWorks2019.Production.Product
-		where ProductSubcategoryID in (
-			select ProductSubcategoryID
-			from AdventureWorks2019.Production.ProductSubcategory
-			where ProductCategoryID in (
-				select ProductCategoryID
-				from AdventureWorks2019.Production.ProductCategory
-				where ProductCategoryID = 1
-				)
-			)
-	)
-) as T
-on soh.SalesOrderID = t.SalesOrderID
-group by soh.TerritoryID
-order by soh.TerritoryID
+/*procedimiento almacenado para creacion de los 3 servidores vinculados*/
+create or alter procedure crear_servidores as
+begin 
+	IF 'LS_AW_PRODUCTION' NOT IN (SELECT NAME FROM sys.servers)
+	begin
+		/* Creación del servidor vinculado para el esquema production*/
+		exec sp_addlinkedserver  
+		  @server='LS_AW_PRODUCTION', 
+		  @srvproduct='',       
+		  @provider='MSOLEDBSQL', 
+		  @datasrc='ls-1.database.windows.net',   
+		  @location='',  
+		  @provstr='',  
+		  @catalog='AW_Production'; 
+		exec sp_addlinkedsrvlogin  
+		  @rmtsrvname = 'LS_AW_PRODUCTION',  
+		  @useself = 'false',  
+		  @rmtuser = 'itzeeel_cava',
+		  @rmtpassword = 'itzelCV2020.';
+		exec sp_serveroption 'LS_AW_PRODUCTION', 'rpc out', true;  
+	end
+
+	IF 'LS_AW_SALES' NOT IN (SELECT NAME FROM sys.servers)
+	begin
+		 /* Creación del servidor vinculado para el esquema sales*/
+		exec sp_addlinkedserver  
+		  @server='LS_AW_SALES', 
+		  @srvproduct='',       
+		  @provider='MSOLEDBSQL', 
+		  @datasrc='ls-2.database.windows.net',   
+		  @location='',  
+		  @provstr='',  
+		  @catalog='AW_Sales'; 
+		exec sp_addlinkedsrvlogin  
+		  @rmtsrvname = 'LS_AW_SALES',  
+		  @useself = 'false',  
+		  @rmtuser = 'itzeeel_cava',
+		  @rmtpassword = 'itzelCV2020.';
+		exec sp_serveroption 'LS_AW_SALES', 'rpc out', true;  
+	end
+
+	IF 'LS_AW_OTHERS' NOT IN (SELECT NAME FROM sys.servers)
+	begin
+		 /* Creación del servidor vinculado para los esquemas restantes*/
+		exec sp_addlinkedserver  
+		  @server='LS_AW_OTHERS', 
+		  @srvproduct='',       
+		  @provider='MSOLEDBSQL', 
+		  @datasrc='ls-3.database.windows.net',   
+		  @location='',  
+		  @provstr='',  
+		  @catalog='AW_Others'; 
+		exec sp_addlinkedsrvlogin  
+		  @rmtsrvname = 'LS_AW_OTHERS',  
+		  @useself = 'false',  
+		  @rmtuser = 'itzeeel_cava',
+		  @rmtpassword = 'itzelCV2020.';
+		exec sp_serveroption 'LS_AW_OTHERS', 'rpc out', true;  
+	end
+
+end
 go
 
--- distribuida 
-select soh.TerritoryID, sum(t.LineTotal) as total_venta
-from Instancia1.AdventureWorks2019.sales.SalesOrderHeader soh
-inner join
-(select salesorderid, productid, orderqty, linetotal
-from Instancia1.AdventureWorks2019. sales.salesorderdetail sod
-where ProductID in (
-		select productid
-		from Instancia2.AdventureWorks2019.Production.Product
-		where ProductSubcategoryID in (
-			select ProductSubcategoryID
-			from Instancia2.AdventureWorks2019.Production.ProductSubcategory
-			where ProductCategoryID in (
-				select ProductCategoryID
-				from Instancia2.AdventureWorks2019.Production.ProductCategory
-				where ProductCategoryID = 1
-				)
-			)
-	)
-) as T
-on soh.SalesOrderID = t.SalesOrderID
-group by soh.TerritoryID
-order by soh.TerritoryID
+exec crear_servidores
 go
-*/
--- procedimiento almacenado
+
+
+/* a) Determinar el total de las ventas de los productos con la categoría que se provea de argumento de entrada en la consulta,
+   para cada uno de los territorios registrados en la base de datos. */ 
 create or alter procedure ca_selectTotalProd (@cat int) as
 begin
 	select soh.TerritoryID, sum(t.LineTotal) as total_venta
