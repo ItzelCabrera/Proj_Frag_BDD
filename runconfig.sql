@@ -1,6 +1,74 @@
 use master
 go
 
+/*procedimiento almacenado para borrar los 3 servidores vinculados*/
+create or alter procedure borrar_servidores as
+begin 
+	IF 'LS_AW_PRODUCTION' IN (SELECT NAME FROM sys.servers)
+	begin
+	    exec sp_dropserver 'LS_AW_PRODUCTION', 'droplogins';
+	end
+
+	IF 'LS_AW_SALES' IN (SELECT NAME FROM sys.servers)
+	begin
+		exec sp_dropserver 'LS_AW_SALES', 'droplogins';
+	end
+
+	IF 'LS_AW_OTHERS' IN (SELECT NAME FROM sys.servers)
+	begin
+		exec sp_dropserver 'LS_AW_OTHERS', 'droplogins';
+	end
+
+end
+go
+
+exec borrar_servidores
+go
+
+create or alter procedure crear_servidores_local as
+begin 
+		IF 'LS_AW_PRODUCTION' NOT IN (SELECT NAME FROM sys.servers)
+	begin
+		/* Creación del servidor vinculado para el esquema production*/
+		exec sp_addlinkedserver  
+		  @server='LS_AW_PRODUCTION', 
+		  @srvproduct='',       
+		  @provider='MSOLEDBSQL', 
+		  @datasrc='.',   
+		  @location='',  
+		  @provstr='',  
+		  @catalog=''; 
+	end
+
+	IF 'LS_AW_SALES' NOT IN (SELECT NAME FROM sys.servers)
+	begin
+		 /* Creación del servidor vinculado para el esquema sales*/
+		exec sp_addlinkedserver  
+		  @server='LS_AW_SALES', 
+		  @srvproduct='',       
+		  @provider='MSOLEDBSQL', 
+		  @datasrc='.',   
+		  @location='',  
+		  @provstr='',  
+		  @catalog=''; 
+	end
+
+	IF 'LS_AW_OTHERS' NOT IN (SELECT NAME FROM sys.servers)
+	begin
+		 /* Creación del servidor vinculado para los esquemas restantes*/
+		exec sp_addlinkedserver  
+		  @server='LS_AW_OTHERS', 
+		  @srvproduct='',       
+		  @provider='MSOLEDBSQL', 
+		  @datasrc='.',   
+		  @location='',  
+		  @provstr='',  
+		  @catalog=''; 
+	end
+
+end
+go
+
 /*procedimiento almacenado para creacion de los 3 servidores vinculados*/
 create or alter procedure crear_servidores as
 begin 
@@ -64,42 +132,8 @@ begin
 end
 go
 
-create or alter procedure crear_servidores_local as
-begin 
-	IF 'LS_AW_PRODUCTION' NOT IN (SELECT NAME FROM sys.servers)
-	begin
-		/* Creación del servidor vinculado para el esquema production*/
-		EXEC sp_addlinkedserver     
-		   @server=N'LS_AW_PRODUCTION',   
-		   @srvproduct=N'',  
-		   @provider=N'SQLNCLI',   
-		   @datasrc=N'AW_Production'; 
-	end
-
-	IF 'LS_AW_SALES' NOT IN (SELECT NAME FROM sys.servers)
-	begin
-		 /* Creación del servidor vinculado para el esquema sales*/
-		EXEC sp_addlinkedserver     
-		   @server=N'LS_AW_SALES',   
-		   @srvproduct=N'',  
-		   @provider=N'SQLNCLI',   
-		   @datasrc=N'AW_Sales'; 
-	end
-
-	IF 'LS_AW_OTHERS' NOT IN (SELECT NAME FROM sys.servers)
-	begin
-		 /* Creación del servidor vinculado para los esquemas restantes*/
-		EXEC sp_addlinkedserver     
-			@server=N'LS_AW_OTHERS',   
-			@srvproduct=N'',  
-			@provider=N'SQLNCLI',   
-			@datasrc=N'AW_Others';  
-	end
-
-end
-go
-
-exec crear_servidores
+--exec crear_servidores
+exec crear_servidores_local
 go
 
 

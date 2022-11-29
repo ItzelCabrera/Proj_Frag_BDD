@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.SqlClient;
 using System.Configuration;
+using System.IO;
 
 namespace Proj_Frag_App
 {
@@ -174,9 +175,9 @@ namespace Proj_Frag_App
                                 resultado = com.ExecuteNonQuery();
                                 conn.Close();
                                 //vaciar el resultado en el datagrid
-                                select = "select * from AW_Production.Production.ProductInventory" +
+                                select = "select * from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory" +
                                     " where LocationID = 60 and ProductID in (" +
-                                    " select ProductID from AW_Production.Production.ProductSubcategory" +
+                                    " select ProductID from [LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory" +
                                     " where ProductCategoryID = 1)";
                                 var dataAdapter_C= new SqlDataAdapter(select, conn);
                                 dataAdapter_C.Fill(ds);
@@ -194,7 +195,7 @@ namespace Proj_Frag_App
                                 resultado = com.ExecuteNonQuery();
                                 conn.Close();
                                 //vaciar el resultado en el datagrid
-                                select = "select * from AW_Sales.Sales.SalesOrderDetail " +
+                                select = "select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail " +
                                     "where SalesOrderID = "+ txtCE2.Text + " and ProductID = " + txtCE3.Text;
                                 var dataAdapter_E = new SqlDataAdapter(select, conn);
                                 dataAdapter_E.Fill(ds);
@@ -211,7 +212,7 @@ namespace Proj_Frag_App
                                 resultado = com.ExecuteNonQuery();
                                 conn.Close();
                                 //vaciar el resultado en el datagrid
-                                select = "select * from AW_Sales.Sales.SalesOrderHeader where SalesOrderID = " + txtCF2.Text;
+                                select = "select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader where SalesOrderID = " + txtCF2.Text;
                                 var dataAdapter_F = new SqlDataAdapter(select, conn);
                                 dataAdapter_F.Fill(ds);
                                 dataGV.ReadOnly = true;
@@ -227,8 +228,8 @@ namespace Proj_Frag_App
                                 resultado = com.ExecuteNonQuery();
                                 conn.Close();
                                 //vaciar el resultado en el datagrid
-                                select = "select * from  AW_Others.Person.EmailAddress where BusinessEntityID = " +
-                                    "(select PersonID from AW_Sales.Sales.Customer where CustomerID = " + txtCG1.Text + ")";
+                                select = "select * from  [LS_AW_OTHERS].AW_Others.Person.EmailAddress where BusinessEntityID = " +
+                                    "(select PersonID from [LS_AW_SALES].AW_Sales.Sales.Customer where CustomerID = " + txtCG1.Text + ")";
                                 var dataAdapter_G = new SqlDataAdapter(select, conn);
                                 dataAdapter_G.Fill(ds);
                                 dataGV.ReadOnly = true;
