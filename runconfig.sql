@@ -132,8 +132,8 @@ begin
 end
 go
 
---exec crear_servidores
-exec crear_servidores_local
+exec crear_servidores
+--exec crear_servidores_local
 go
 
 
