@@ -136,11 +136,12 @@ exec crear_servidores
 --exec crear_servidores_local
 go
 
-
 /* a) Determinar el total de las ventas de los productos con la categoría que se provea de argumento de entrada en la consulta,
    para cada uno de los territorios registrados en la base de datos. */ 
+   
 create or alter procedure ca_selectTotalProd (@cat int) as
 begin
+if exists(
 	select soh.TerritoryID, sum(t.LineTotal) as total_venta
 	from [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader soh
 	inner join
@@ -162,7 +163,15 @@ begin
 	) as T
 	on soh.SalesOrderID = t.SalesOrderID
 	group by soh.TerritoryID
-	order by soh.TerritoryID
+	order by soh.TerritoryID)
+	begin
+		PRINT 'HOLA'
+	end
+    else
+		begin
+			SELECT 1
+		end
+      
 end
 go
 
@@ -213,10 +222,24 @@ begin
 				from [LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory
 				where ProductCategoryID = @cat
 			)
+
+			-- Mostrar cambio
+			select *
+			from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory as pii
+			where pii.LocationID = @localidad and
+			ProductID in (
+				select ProductID
+				from [LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory
+				where ProductCategoryID = @cat
+			)
 		end
 	else
 		begin
-			SELECT NULL
+			if exists(select * from Production.ProductInventory as pii
+					where pii.LocationID = @localidad)
+				select 3 -- No existe la Categoria
+			else
+				select 2 -- No existe lalocalidad
 		end
 end
 go
@@ -326,3 +349,4 @@ begin
 		end
 end
 go	
+
