@@ -132,8 +132,8 @@ begin
 end
 go
 
-exec crear_servidores
---exec crear_servidores_local
+--exec crear_servidores
+exec crear_servidores_local
 go
 
 /* a) Determinar el total de las ventas de los productos con la categoría que se provea de argumento de entrada en la consulta,
@@ -141,7 +141,11 @@ go
    
 create or alter procedure ca_selectTotalProd (@cat int) as
 begin
-if exists(
+if exists(select ProductCategoryID
+					from [LS_AW_PRODUCTION].AW_Production.Production.ProductCategory
+					where ProductCategoryID = @cat )
+
+	begin 
 	select soh.TerritoryID, sum(t.LineTotal) as total_venta
 	from [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader soh
 	inner join
@@ -164,8 +168,6 @@ if exists(
 	on soh.SalesOrderID = t.SalesOrderID
 	group by soh.TerritoryID
 	order by soh.TerritoryID)
-	begin
-		PRINT 'HOLA'
 	end
     else
 		begin
