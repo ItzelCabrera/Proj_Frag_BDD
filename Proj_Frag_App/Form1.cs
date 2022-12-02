@@ -171,15 +171,7 @@ namespace Proj_Frag_App
                                 com.CommandType = CommandType.StoredProcedure;
                                 com.Parameters.AddWithValue("@cat", txtCC1.Text).Direction = ParameterDirection.Input;
                                 com.Parameters.AddWithValue("@localidad", txtCC2.Text).Direction = ParameterDirection.Input;
-                                conn.Open();
-                                resultado = com.ExecuteNonQuery();
-                                conn.Close();
-                                //vaciar el resultado en el datagrid
-                                select = "select * from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory" +
-                                    " where LocationID = 60 and ProductID in (" +
-                                    " select ProductID from [LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory" +
-                                    " where ProductCategoryID = 1)";
-                                var dataAdapter_C= new SqlDataAdapter(select, conn);
+                                var dataAdapter_C= new SqlDataAdapter(com);
                                 dataAdapter_C.Fill(ds);
                                 dataGV.ReadOnly = true;
                                 dataGV.DataSource = ds.Tables[0];
@@ -191,13 +183,7 @@ namespace Proj_Frag_App
                                 com.Parameters.AddWithValue("@qty", txtCE1.Text).Direction = ParameterDirection.Input;
                                 com.Parameters.AddWithValue("@salesID", txtCE2.Text).Direction = ParameterDirection.Input;
                                 com.Parameters.AddWithValue("@productID", txtCE3.Text).Direction = ParameterDirection.Input;
-                                conn.Open();
-                                resultado = com.ExecuteNonQuery();
-                                conn.Close();
-                                //vaciar el resultado en el datagrid
-                                select = "select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail " +
-                                    "where SalesOrderID = "+ txtCE2.Text + " and ProductID = " + txtCE3.Text;
-                                var dataAdapter_E = new SqlDataAdapter(select, conn);
+                                var dataAdapter_E = new SqlDataAdapter(com);
                                 dataAdapter_E.Fill(ds);
                                 dataGV.ReadOnly = true;
                                 dataGV.DataSource = ds.Tables[0];
@@ -208,12 +194,7 @@ namespace Proj_Frag_App
                                 com.CommandType = CommandType.StoredProcedure;
                                 com.Parameters.AddWithValue("@method", txtCF1.Text).Direction = ParameterDirection.Input;
                                 com.Parameters.AddWithValue("@salesID", txtCF2.Text).Direction = ParameterDirection.Input;
-                                conn.Open();
-                                resultado = com.ExecuteNonQuery();
-                                conn.Close();
-                                //vaciar el resultado en el datagrid
-                                select = "select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader where SalesOrderID = " + txtCF2.Text;
-                                var dataAdapter_F = new SqlDataAdapter(select, conn);
+                                var dataAdapter_F = new SqlDataAdapter(com);
                                 dataAdapter_F.Fill(ds);
                                 dataGV.ReadOnly = true;
                                 dataGV.DataSource = ds.Tables[0];
@@ -224,13 +205,7 @@ namespace Proj_Frag_App
                                 com.CommandType = CommandType.StoredProcedure;
                                 com.Parameters.AddWithValue("@customerID", txtCG1.Text).Direction = ParameterDirection.Input;
                                 com.Parameters.AddWithValue("@newEmail", txtCG2.Text).Direction = ParameterDirection.Input;
-                                conn.Open();
-                                resultado = com.ExecuteNonQuery();
-                                conn.Close();
-                                //vaciar el resultado en el datagrid
-                                select = "select * from  [LS_AW_OTHERS].AW_Others.Person.EmailAddress where BusinessEntityID = " +
-                                    "(select PersonID from [LS_AW_SALES].AW_Sales.Sales.Customer where CustomerID = " + txtCG1.Text + ")";
-                                var dataAdapter_G = new SqlDataAdapter(select, conn);
+                                var dataAdapter_G = new SqlDataAdapter(com);
                                 dataAdapter_G.Fill(ds);
                                 dataGV.ReadOnly = true;
                                 dataGV.DataSource = ds.Tables[0];
@@ -246,10 +221,6 @@ namespace Proj_Frag_App
                                 com.CommandText = "ca_selectTotalProd";
                                 com.CommandType = CommandType.StoredProcedure;
                                 com.Parameters.AddWithValue("@cat", txtCA1.Text).Direction = ParameterDirection.Input;
-                                conn.Open();
-                                com.ExecuteNonQuery();
-                                resultado = 1;
-                                conn.Close();
                                 //vaciar el resultado en el datagrid
                                 var dataAdapter_G = new SqlDataAdapter(com);
                                 dataAdapter_G.Fill(ds);
@@ -260,10 +231,6 @@ namespace Proj_Frag_App
                                 // CONSULTA B
                                 com.CommandText = "cb_selectMostProd";
                                 com.CommandType = CommandType.StoredProcedure;
-                                conn.Open();
-                                com.ExecuteNonQuery();
-                                resultado = 1;
-                                conn.Close();
                                 //vaciar el resultado en el datagrid
                                 var dataAdapter_B = new SqlDataAdapter(com);
                                 dataAdapter_B.Fill(ds);
@@ -274,10 +241,6 @@ namespace Proj_Frag_App
                                 // CONSULTA D
                                 com.CommandText = "cd_TerritoryCli";
                                 com.CommandType = CommandType.StoredProcedure;
-                                conn.Open();
-                                com.ExecuteNonQuery();
-                                resultado = 1;
-                                conn.Close();
                                 //vaciar el resultado en el datagrid
                                 var dataAdapter_D = new SqlDataAdapter(com);
                                 dataAdapter_D.Fill(ds);
@@ -288,14 +251,48 @@ namespace Proj_Frag_App
                         break;
                 }
 
-                if (resultado > 0)
-                {
-                    MessageBox.Show("Consulta Ejecutada Correctamente", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                {
-                    MessageBox.Show("Ocurrio un Error en la Ejecución", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                //validacion
+                if (ds.Tables[0].Rows.Count > 0){
+                    string v = ds.Tables[0].Rows[0][1].ToString();
+                    switch (v)
+                    {
+                        case "1":
+                            dataGV.DataSource = null;
+                            MessageBox.Show("Categoría no existente", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            break;
+                        case "2":
+                            dataGV.DataSource = null;
+                            MessageBox.Show("Localidad no existente", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            break;
+                        case "3":
+                            dataGV.DataSource = null;
+                            MessageBox.Show("Categoría no existente", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            break;
+                        case "4":
+                            dataGV.DataSource = null;
+                            MessageBox.Show("No hay productos en existencia para agregar", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            break;
+                        case "5":
+                            dataGV.DataSource = null;
+                            MessageBox.Show("Producto u orden no existente", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            break;
+                        case "6":
+                            dataGV.DataSource = null;
+                            MessageBox.Show("Método de envío no existente", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            break;
+                        case "7":
+                            dataGV.DataSource = null;
+                            MessageBox.Show("ID de ventas no válido", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            break;
+                        case "8":
+                            dataGV.DataSource = null;
+                            MessageBox.Show("ID del cliente no válido", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            break;
+                        default:
+                            break;
+                    }
+                } 
+                
             }
             catch (Exception ex)
             {
