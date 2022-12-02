@@ -166,7 +166,6 @@ begin
 end
 go
 
-
 /* b) Determinar el producto más solicitado para la región (atributo group de salesterritory) 
    “Noth America” y en que territorio de la región tiene mayor demanda. */
 create or alter procedure cb_selectMostProd as
@@ -191,7 +190,6 @@ begin
 	order by total_ventas desc
 end
 go 
-
 
 /* c) Actualizar el stock disponible en un 5% de los productos de la categoría que se provea como argumento de entrada en una 
 localidad que se provea como entrada en la instrucción de actualización. */ 
@@ -223,7 +221,6 @@ begin
 end
 go
 
-
 /* d) Determinar si hay clientes que realizan ordenes en territorios diferentes al que se encuentran. */ 
 create or alter procedure cd_TerritoryCli as
 begin
@@ -237,7 +234,6 @@ begin
 	group by c.TerritoryID, soh.TerritoryID
 end
 go
-
 
 /* e) Actualizar la cantidad de productos de una orden que se provea como argumento en la instrucción de actualización. */ 
 create or alter procedure ce_updateSales (@qty int, @salesID int, @productID int) as
@@ -262,20 +258,22 @@ begin
 					update [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
 					set Quantity = Quantity - @qty
 					where ProductID = @productID and LocationID = @locationID
+
+					select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail 
+					where SalesOrderID = @salesID and ProductID = @productID
 				end
 			else
 				begin 
-					select null --en el caso de que no existan productos en existencia
+					select 4 --en el caso de que no existan productos en existencia
 				end
 
 		end
 	else
 		begin
-			select null --en caso de que el producto u orden no existen
+			select 5 --en caso de que el producto u orden no existen
 		end
 end
 go
-
 
 /* f) Actualizar el método de envío de una orden que se reciba como argumento en la instrucción de actualización. */
 create or alter procedure cf_updateShip (@method int,@salesID int) as
@@ -283,17 +281,27 @@ begin
 	if exists(select * from [LS_AW_OTHERS].AW_Others.Purchasing.ShipMethod
 		where ShipMethodID = @method)
 		begin
-			update [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader
-			set ShipMethodID = @method
-			where SalesOrderID = @salesID
+		if exists(select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader
+				where SalesOrderID = @salesID)
+				begin
+					update [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader
+					set ShipMethodID = @method
+					where SalesOrderID = @salesID
+
+					select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader
+					where SalesOrderID = @salesID
+				end
+		else
+			begin 
+				select 7
+			end
 		end
 	else
 		begin
-			select null
+			select 6
 		end
 end
 go	
-
 
 /* g) Actualizar el correo electrónico de una cliente que se reciba como argumento en la instrucción de actualización. */
 create or alter procedure cg_updateEmail (@customerID int,@newEmail nvarchar(50)) as
@@ -306,10 +314,15 @@ begin
 			where BusinessEntityID = (
 					select PersonID from [LS_AW_SALES].AW_Sales.Sales.Customer
 					where CustomerID = @customerID)
+
+			select * from [LS_AW_OTHERS].AW_Others.Person.EmailAddress
+			where BusinessEntityID = (
+				select PersonID from [LS_AW_SALES].AW_Sales.Sales.Customer
+				where CustomerID = @customerID)
 		end
 	else
 		begin
-			select null
+			select 8
 		end
 end
 go	
