@@ -154,8 +154,6 @@ namespace Proj_Frag_App
         {
             SqlCommand com = new SqlCommand("", conn);
             DataSet ds = new DataSet();
-            String select = "";
-            int resultado = 0;
 
             try
             {
@@ -253,38 +251,38 @@ namespace Proj_Frag_App
 
                 //validacion
                 if (ds.Tables[0].Rows.Count > 0){
-                    string v = ds.Tables[0].Rows[0][1].ToString();
+                    string v = ds.Tables[0].Rows[0][0].ToString();
                     switch (v)
                     {
-                        case "1":
+                        case "-1":
                             dataGV.DataSource = null;
                             MessageBox.Show("Categoría no existente", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             break;
-                        case "2":
+                        case "-2":
                             dataGV.DataSource = null;
                             MessageBox.Show("Localidad no existente", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             break;
-                        case "3":
+                        case "-3":
                             dataGV.DataSource = null;
                             MessageBox.Show("Categoría no existente", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             break;
-                        case "4":
+                        case "-4":
                             dataGV.DataSource = null;
                             MessageBox.Show("No hay productos en existencia para agregar", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             break;
-                        case "5":
+                        case "-5":
                             dataGV.DataSource = null;
                             MessageBox.Show("Producto u orden no existente", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             break;
-                        case "6":
+                        case "-6":
                             dataGV.DataSource = null;
                             MessageBox.Show("Método de envío no existente", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             break;
-                        case "7":
+                        case "-7":
                             dataGV.DataSource = null;
                             MessageBox.Show("ID de ventas no válido", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             break;
-                        case "8":
+                        case "-8":
                             dataGV.DataSource = null;
                             MessageBox.Show("ID del cliente no válido", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             break;

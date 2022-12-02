@@ -141,8 +141,7 @@ go
    
 create or alter procedure ca_selectTotalProd (@cat int) as
 begin
-if exists(select ProductCategoryID
-					from [LS_AW_PRODUCTION].AW_Production.Production.ProductCategory
+if exists(select * from [LS_AW_PRODUCTION].AW_Production.Production.ProductCategory
 					where ProductCategoryID = @cat )
 
 	begin 
@@ -167,11 +166,11 @@ if exists(select ProductCategoryID
 	) as T
 	on soh.SalesOrderID = t.SalesOrderID
 	group by soh.TerritoryID
-	order by soh.TerritoryID)
+	order by soh.TerritoryID
 	end
     else
 		begin
-			SELECT 1
+			SELECT -1
 		end
       
 end
@@ -239,9 +238,9 @@ begin
 		begin
 			if exists(select * from Production.ProductInventory as pii
 					where pii.LocationID = @localidad)
-				select 3 -- No existe la Categoria
+				select -3 -- No existe la Categoria
 			else
-				select 2 -- No existe lalocalidad
+				select -2 -- No existe lalocalidad
 		end
 end
 go
@@ -289,13 +288,13 @@ begin
 				end
 			else
 				begin 
-					select 4 --en el caso de que no existan productos en existencia
+					select -4 --en el caso de que no existan productos en existencia
 				end
 
 		end
 	else
 		begin
-			select 5 --en caso de que el producto u orden no existen
+			select -5 --en caso de que el producto u orden no existen
 		end
 end
 go
@@ -318,12 +317,12 @@ begin
 				end
 		else
 			begin 
-				select 7
+				select -7
 			end
 		end
 	else
 		begin
-			select 6
+			select -6
 		end
 end
 go	
@@ -347,7 +346,7 @@ begin
 		end
 	else
 		begin
-			select 8
+			select -8
 		end
 end
 go	
