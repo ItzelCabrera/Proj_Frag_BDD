@@ -151,10 +151,24 @@ begin
 				from [LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory
 				where ProductCategoryID = @cat
 			)
+
+			-- Mostrar cambio
+			select *
+			from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory as pii
+			where pii.LocationID = @localidad and
+			ProductID in (
+				select ProductID
+				from [LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory
+				where ProductCategoryID = @cat
+			)
 		end
 	else
 		begin
-			SELECT NULL
+			if exists(select * from Production.ProductInventory as pii
+					where pii.LocationID = @localidad)
+				select 3 -- No existe la Categoria
+			else
+				select 2 -- No existe lalocalidad
 		end
 end
 go
