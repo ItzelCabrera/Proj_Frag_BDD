@@ -3,7 +3,7 @@ create or alter procedure crear_servidores as
 begin 
 	IF 'LS_AW_PRODUCTION' NOT IN (SELECT NAME FROM sys.servers)
 	begin
-		/* CreaciÛn del servidor vinculado para el esquema production*/
+		/* Creaci√≥n del servidor vinculado para el esquema production*/
 		exec sp_addlinkedserver  
 		  @server='LS_AW_PRODUCTION', 
 		  @srvproduct='',       
@@ -22,7 +22,7 @@ begin
 
 	IF 'LS_AW_SALES' NOT IN (SELECT NAME FROM sys.servers)
 	begin
-		 /* CreaciÛn del servidor vinculado para el esquema sales*/
+		 /* Creaci√≥n del servidor vinculado para el esquema sales*/
 		exec sp_addlinkedserver  
 		  @server='LS_AW_SALES', 
 		  @srvproduct='',       
@@ -41,7 +41,7 @@ begin
 
 	IF 'LS_AW_OTHERS' NOT IN (SELECT NAME FROM sys.servers)
 	begin
-		 /* CreaciÛn del servidor vinculado para los esquemas restantes*/
+		 /* Creaci√≥n del servidor vinculado para los esquemas restantes*/
 		exec sp_addlinkedserver  
 		  @server='LS_AW_OTHERS', 
 		  @srvproduct='',       
@@ -65,10 +65,12 @@ exec crear_servidores
 go
 
 
-/* a) Determinar el total de las ventas de los productos con la categorÌa que se provea de argumento de entrada en la consulta,
+/* a) Determinar el total de las ventas de los productos con la categor√≠a que se provea de argumento de entrada en la consulta,
    para cada uno de los territorios registrados en la base de datos. */ 
+   
 create or alter procedure ca_selectTotalProd (@cat int) as
 begin
+if exists(
 	select soh.TerritoryID, sum(t.LineTotal) as total_venta
 	from [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader soh
 	inner join
@@ -90,7 +92,12 @@ begin
 	) as T
 	on soh.SalesOrderID = t.SalesOrderID
 	group by soh.TerritoryID
-	order by soh.TerritoryID
+	order by soh.TerritoryID)
+    else
+		begin
+			SELECT 1
+		end
+        
 end
 go
 
@@ -99,8 +106,8 @@ go
 
 
 
-/* b) Determinar el producto m·s solicitado para la regiÛn (atributo group de salesterritory) 
-   ìNoth Americaî y en que territorio de la regiÛn tiene mayor demanda. */
+/* b) Determinar el producto m√°s solicitado para la regi√≥n (atributo group de salesterritory) 
+   ‚ÄúNoth America‚Äù y en que territorio de la regi√≥n tiene mayor demanda. */
 create or alter procedure cb_selectMostProd as
 begin
 	select top 1 sum(T.lineTotal) as total_ventas, p.[Name] as Nombre, p.ProductID
@@ -129,8 +136,8 @@ go
 
 
 
-/* c) Actualizar el stock disponible en un 5% de los productos de la categorÌa que se provea como argumento de entrada en una 
-localidad que se provea como entrada en la instrucciÛn de actualizaciÛn. */ 
+/* c) Actualizar el stock disponible en un 5% de los productos de la categor√≠a que se provea como argumento de entrada en una 
+localidad que se provea como entrada en la instrucci√≥n de actualizaci√≥n. */ 
 create or alter procedure cc_updateLocation (@localidad int, @cat int) as
 begin
 	if exists(select *
@@ -207,7 +214,7 @@ go
 
 
 
-/* e) Actualizar la cantidad de productos de una orden que se provea como argumento en la instrucciÛn de actualizaciÛn. */ 
+/* e) Actualizar la cantidad de productos de una orden que se provea como argumento en la instrucci√≥n de actualizaci√≥n. */ 
 create or alter procedure ce_updateSales (@qty int, @salesID int, @productID int) as
 begin
 	
@@ -224,7 +231,7 @@ begin
 
 					declare @locationID int
 					set @locationID = (select top 1 LocationID from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
-						where ProductID = @productID and Quantity >= @qty) --asignando a que locaciÛn se le retirar· stock
+						where ProductID = @productID and Quantity >= @qty) --asignando a que locaci√≥n se le retirar√° stock
 
 					--actualizando stock
 					update [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
@@ -250,7 +257,7 @@ go
 exec ce_updateSales 1,43659,776
 go
 
-/* f) Actualizar el mÈtodo de envÌo de una orden que se reciba como argumento en la instrucciÛn de actualizaciÛn. */
+/* f) Actualizar el m√©todo de env√≠o de una orden que se reciba como argumento en la instrucci√≥n de actualizaci√≥n. */
 create or alter procedure cf_updateShip (@method int,@salesID int) as
 begin
 	if exists(select * from [LS_AW_OTHERS].AW_Others.Purchasing.ShipMethod
@@ -281,7 +288,7 @@ go
 exec cf_updateShip 3,43659
 go
 
-/* g) Actualizar el correo electrÛnico de una cliente que se reciba como argumento en la instrucciÛn de actualizaciÛn. */
+/* g) Actualizar el correo electr√≥nico de una cliente que se reciba como argumento en la instrucci√≥n de actualizaci√≥n. */
 create or alter procedure cg_updateEmail (@customerID int,@newEmail nvarchar(50)) as
 begin
 	if exists(select * from [LS_AW_SALES].AW_Sales.Sales.Customer
