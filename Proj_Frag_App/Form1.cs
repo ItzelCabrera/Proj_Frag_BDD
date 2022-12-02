@@ -169,7 +169,8 @@ namespace Proj_Frag_App
                                 com.CommandType = CommandType.StoredProcedure;
                                 com.Parameters.AddWithValue("@cat", txtCC1.Text).Direction = ParameterDirection.Input;
                                 com.Parameters.AddWithValue("@localidad", txtCC2.Text).Direction = ParameterDirection.Input;
-                                var dataAdapter_C= new SqlDataAdapter(com);
+                                //vaciar el resultado en el datagrid
+                                var dataAdapter_C = new SqlDataAdapter(com);
                                 dataAdapter_C.Fill(ds);
                                 dataGV.ReadOnly = true;
                                 dataGV.DataSource = ds.Tables[0];
@@ -181,6 +182,7 @@ namespace Proj_Frag_App
                                 com.Parameters.AddWithValue("@qty", txtCE1.Text).Direction = ParameterDirection.Input;
                                 com.Parameters.AddWithValue("@salesID", txtCE2.Text).Direction = ParameterDirection.Input;
                                 com.Parameters.AddWithValue("@productID", txtCE3.Text).Direction = ParameterDirection.Input;
+                                //vaciar el resultado en el datagrid
                                 var dataAdapter_E = new SqlDataAdapter(com);
                                 dataAdapter_E.Fill(ds);
                                 dataGV.ReadOnly = true;
@@ -192,6 +194,7 @@ namespace Proj_Frag_App
                                 com.CommandType = CommandType.StoredProcedure;
                                 com.Parameters.AddWithValue("@method", txtCF1.Text).Direction = ParameterDirection.Input;
                                 com.Parameters.AddWithValue("@salesID", txtCF2.Text).Direction = ParameterDirection.Input;
+                                //vaciar el resultado en el datagrid
                                 var dataAdapter_F = new SqlDataAdapter(com);
                                 dataAdapter_F.Fill(ds);
                                 dataGV.ReadOnly = true;
@@ -203,6 +206,7 @@ namespace Proj_Frag_App
                                 com.CommandType = CommandType.StoredProcedure;
                                 com.Parameters.AddWithValue("@customerID", txtCG1.Text).Direction = ParameterDirection.Input;
                                 com.Parameters.AddWithValue("@newEmail", txtCG2.Text).Direction = ParameterDirection.Input;
+                                //vaciar el resultado en el datagrid
                                 var dataAdapter_G = new SqlDataAdapter(com);
                                 dataAdapter_G.Fill(ds);
                                 dataGV.ReadOnly = true;
@@ -298,6 +302,7 @@ namespace Proj_Frag_App
                 conn.Close();
             }
         }
-            
+
+
     }
 }
