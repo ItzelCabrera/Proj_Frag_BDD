@@ -131,7 +131,3 @@ begin
 
 end
 go
-
---exec crear_servidores 'ls-1.database.windows.net','ls-2.database.windows.net','ls-3.database.windows.net','itzeeel_cava','itzelCV2020.'
-exec crear_servidores_local '.','.','.'
-go

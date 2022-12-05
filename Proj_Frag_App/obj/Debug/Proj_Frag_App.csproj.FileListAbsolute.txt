@@ -19,3 +19,4 @@ C:\Users\Itzel Cabrera\OneDrive - Instituto Politecnico Nacional\23-1\Bases de D
 C:\Users\Itzel Cabrera\OneDrive - Instituto Politecnico Nacional\23-1\Bases de Datos Distribuidas\Proyectos\Proyecto1\Proj_Frag_BDD\Proj_Frag_App\obj\Debug\Proj_Frag_App.csproj.CoreCompileInputs.cache
 C:\Users\Itzel Cabrera\OneDrive - Instituto Politecnico Nacional\23-1\Bases de Datos Distribuidas\Proyectos\Proyecto1\Proj_Frag_BDD\Proj_Frag_App\obj\Debug\Proj_Frag_App.exe
 C:\Users\Itzel Cabrera\OneDrive - Instituto Politecnico Nacional\23-1\Bases de Datos Distribuidas\Proyectos\Proyecto1\Proj_Frag_BDD\Proj_Frag_App\obj\Debug\Proj_Frag_App.pdb
+D:\Archivos\UPIITA\7MO SEMESTRE\BD Distribuidas 2\Proyectos\Proj_Frag_BDD\Proj_Frag_App\obj\Debug\Proj_Frag_App.frmRun.resources

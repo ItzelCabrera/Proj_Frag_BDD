@@ -3,7 +3,6 @@ go
 
 /* a) Determinar el total de las ventas de los productos con la categoría que se provea de argumento de entrada en la consulta,
    para cada uno de los territorios registrados en la base de datos. */ 
-   
 create or alter procedure ca_selectTotalProd (@cat int) as
 begin
 if exists(select * from [LS_AW_PRODUCTION].AW_Production.Production.ProductCategory

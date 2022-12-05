@@ -1,25 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Proj_Frag_App
 {
     static class Program
     {
-        /// <summary>
-        /// Punto de entrada principal para la aplicación.
-        /// </summary>
         [STAThread]
         static void Main()
         {
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new frmPRINCIPAL());
             ExecSQLfile ex = new ExecSQLfile();
             ex.runSqlScriptFile("../servers.sql");
-            ex.runSqlScriptFile("../storedProcedures.sql");
+            Application.Run(new frmRun());
         }
     }
 }
