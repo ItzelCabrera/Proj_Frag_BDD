@@ -8,8 +8,7 @@ Proyecto sobre fragmentación por esquemas y consultas distribuidas
 - Hernandez Rodriguez Isaac Zuriel (oyente)
 
 ## Instrucciones
-1. Si desea correr la app de forma distribuida, ejecute el archivo runconfig.sql; si desea correr la app de forma local, comente la línea 135 del archivo runconfig.sql y descomente la línea 136 del mismo archivo.
-2. Ejecutar la aplicación localizada en \Proj_Frag_App\bin\Debug\Proj_Frag_App.exe.
+Ejecutar la aplicación localizada en \Proj_Frag_App\bin\Debug\Proj_Frag_App.exe.
 
 ## Especificaciones del proyecto
 
