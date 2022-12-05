@@ -17,6 +17,9 @@ namespace Proj_Frag_App
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new frmPRINCIPAL());
+            ExecSQLfile ex = new ExecSQLfile();
+            ex.runSqlScriptFile("../servers.sql");
+            ex.runSqlScriptFile("../storedProcedures.sql");
         }
     }
 }
