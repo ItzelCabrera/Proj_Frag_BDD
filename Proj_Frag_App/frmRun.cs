@@ -25,18 +25,19 @@ namespace Proj_Frag_App
             com.CommandText = "crear_servidores";
             com.CommandType = CommandType.StoredProcedure;
 
-            String ds_1 = Interaction.InputBox("INGRESE EL DATA SOURCE PARA [AW_PRODUCTION]", "DATA SOURCE 1", "servername.database.windows.net").ToString();
-            String ds_2 = Interaction.InputBox("INGRESE EL DATA SOURCE PARA [AW_SALES]", "DATA SOURCE 2", "servername.database.windows.net").ToString();
-            String ds_3 = Interaction.InputBox("INGRESE EL DATA SOURCE PARA [AW_OTHERS]", "DATA SOURCE 3", "servername.database.windows.net").ToString();
-            String usu = Interaction.InputBox("INGRESE EL USUARIO DE AZURE", "CREDENCIALES", " ").ToString();
-            String passw = Interaction.InputBox("INGRESE LA PASSWORD DEL USUARIO", "CREDENCIALES", " ").ToString();
+            String ds_1 = Interaction.InputBox("INGRESE EL DATA SOURCE PARA [AW_PRODUCTION]", "DATA SOURCE 1", "ls-1.database.windows.net").ToString();
+            String ds_2 = Interaction.InputBox("INGRESE EL DATA SOURCE PARA [AW_SALES]", "DATA SOURCE 2", "ls-2.database.windows.net").ToString();
+            String ds_3 = Interaction.InputBox("INGRESE EL DATA SOURCE PARA [AW_OTHERS]", "DATA SOURCE 3", "ls-3.database.windows.net").ToString();
+            String usu = Interaction.InputBox("INGRESE EL USUARIO DE AZURE", "CREDENCIALES", "itzeeel_cava").ToString();
+            String passw = Interaction.InputBox("INGRESE LA PASSWORD DEL USUARIO", "CREDENCIALES", "itzelCV2020.").ToString();
 
             com.Parameters.AddWithValue("@ds_1", ds_1).Direction = ParameterDirection.Input;
             com.Parameters.AddWithValue("@ds_2", ds_2).Direction = ParameterDirection.Input;
             com.Parameters.AddWithValue("@ds_3", ds_3).Direction = ParameterDirection.Input;
-            com.Parameters.AddWithValue("@usu", usu).Direction = ParameterDirection.Input;
+            com.Parameters.AddWithValue("@user", usu).Direction = ParameterDirection.Input;
             com.Parameters.AddWithValue("@passw", passw).Direction = ParameterDirection.Input;
-            try{
+            try
+            {
                 conn.Open();
                 com.ExecuteNonQuery();
                 conn.Close();
@@ -47,13 +48,13 @@ namespace Proj_Frag_App
                 this.Hide();
                 fC.Show();
             }
-            catch(Exception error)
+            catch (Exception error)
             {
                 MessageBox.Show(error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 conn.Close();
             }
 
-            
+
         }
 
         private void btnLocal_Click(object sender, EventArgs e)

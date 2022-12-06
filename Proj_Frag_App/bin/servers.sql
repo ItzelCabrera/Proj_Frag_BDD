@@ -25,6 +25,7 @@ go
 exec borrar_servidores
 go
 
+/*procedimiento almacenado para creacion de los 3 servidores vinculados (locales)*/
 create or alter procedure crear_servidores_local (@ds_1 NVARCHAR(100),@ds_2 NVARCHAR(100),@ds_3 NVARCHAR(100)) as
 begin 
 		IF 'LS_AW_PRODUCTION' NOT IN (SELECT NAME FROM sys.servers)
@@ -69,7 +70,7 @@ begin
 end
 go
 
-/*procedimiento almacenado para creacion de los 3 servidores vinculados*/
+/*procedimiento almacenado para creacion de los 3 servidores vinculados (distribuidos)*/
 create or alter procedure crear_servidores (@ds_1 NVARCHAR(100),@ds_2 NVARCHAR(100),@ds_3 NVARCHAR(100),@user nvarchar(100), @passw nvarchar(100)) as
 begin 
 	IF 'LS_AW_PRODUCTION' NOT IN (SELECT NAME FROM sys.servers)
@@ -120,7 +121,7 @@ begin
 		  @datasrc=@ds_3,   
 		  @location='',  
 		  @provstr='',  
-		  @catalog='AW_Production'; 
+		  @catalog='AW_Others'; 
 		exec sp_addlinkedsrvlogin  
 		  @rmtsrvname = 'LS_AW_OTHERS',  
 		  @useself = 'false',  

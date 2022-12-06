@@ -38,9 +38,10 @@ namespace Proj_Frag_App
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(69, 9);
+            this.label1.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(46, 19);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(219, 17);
+            this.label1.Size = new System.Drawing.Size(343, 23);
             this.label1.TabIndex = 0;
             this.label1.Text = "Seleccione el tipo de arquitectura";
             // 
@@ -49,9 +50,10 @@ namespace Proj_Frag_App
             this.btnDist.BackgroundImage = global::Proj_Frag_App.Properties.Resources.distrib;
             this.btnDist.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.btnDist.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnDist.Location = new System.Drawing.Point(207, 45);
+            this.btnDist.ForeColor = System.Drawing.SystemColors.ControlDark;
+            this.btnDist.Location = new System.Drawing.Point(249, 58);
             this.btnDist.Name = "btnDist";
-            this.btnDist.Size = new System.Drawing.Size(110, 111);
+            this.btnDist.Size = new System.Drawing.Size(150, 150);
             this.btnDist.TabIndex = 2;
             this.btnDist.UseVisualStyleBackColor = true;
             this.btnDist.Click += new System.EventHandler(this.btnDist_Click);
@@ -61,9 +63,10 @@ namespace Proj_Frag_App
             this.btnLocal.BackgroundImage = global::Proj_Frag_App.Properties.Resources.local;
             this.btnLocal.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.btnLocal.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnLocal.Location = new System.Drawing.Point(39, 45);
+            this.btnLocal.ForeColor = System.Drawing.SystemColors.ControlDark;
+            this.btnLocal.Location = new System.Drawing.Point(38, 58);
             this.btnLocal.Name = "btnLocal";
-            this.btnLocal.Size = new System.Drawing.Size(132, 111);
+            this.btnLocal.Size = new System.Drawing.Size(150, 150);
             this.btnLocal.TabIndex = 1;
             this.btnLocal.UseVisualStyleBackColor = true;
             this.btnLocal.Click += new System.EventHandler(this.btnLocal_Click);
@@ -73,7 +76,7 @@ namespace Proj_Frag_App
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlDark;
-            this.ClientSize = new System.Drawing.Size(371, 165);
+            this.ClientSize = new System.Drawing.Size(446, 224);
             this.Controls.Add(this.btnDist);
             this.Controls.Add(this.btnLocal);
             this.Controls.Add(this.label1);

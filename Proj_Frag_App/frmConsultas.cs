@@ -32,7 +32,7 @@ namespace Proj_Frag_App
             rbtn4.Text = "Actualizar el correo electrónico de una cliente.";
             rbtn1.Visible = rbtn2.Visible = rbtn3.Visible = rbtn4.Visible = true;
             hide_options();
-            tipo = 1; 
+            tipo = 1;
         }
 
         private void btnREAD_Click(object sender, EventArgs e)
@@ -47,7 +47,8 @@ namespace Proj_Frag_App
 
         }
 
-        public void hide_options() {
+        public void hide_options()
+        {
             rbtn1.Checked = rbtn2.Checked = rbtn3.Checked = rbtn4.Checked = false;
             pnlConA.Visible = pnlConC.Visible = pnlConE.Visible = pnlConF.Visible = pnlConG.Visible = false;
         }
@@ -64,7 +65,7 @@ namespace Proj_Frag_App
 
         private void rbtn2_CheckedChanged(object sender, EventArgs e)
         {
-            if(rbtn2.Checked == true)
+            if (rbtn2.Checked == true)
             {
                 rbtn1.Checked = rbtn3.Checked = rbtn4.Checked = false;
                 consulta = 2;
@@ -74,7 +75,7 @@ namespace Proj_Frag_App
 
         private void rbtn3_CheckedChanged(object sender, EventArgs e)
         {
-            if(rbtn3.Checked == true)
+            if (rbtn3.Checked == true)
             {
                 rbtn2.Checked = rbtn1.Checked = rbtn4.Checked = false;
                 consulta = 3;
@@ -84,7 +85,7 @@ namespace Proj_Frag_App
 
         private void rbtn4_CheckedChanged(object sender, EventArgs e)
         {
-            if(rbtn4.Checked == true)
+            if (rbtn4.Checked == true)
             {
                 rbtn2.Checked = rbtn3.Checked = rbtn1.Checked = false;
                 consulta = 4;
@@ -92,11 +93,11 @@ namespace Proj_Frag_App
             pnl_Refresh();
         }
 
-        public void pnl_Refresh() 
+        public void pnl_Refresh()
         {
             pnlConA.Visible = pnlConC.Visible = pnlConE.Visible = pnlConF.Visible = pnlConG.Visible = false;
             dataGV.DataSource = null;
-            if (tipo != 0 && consulta !=0)
+            if (tipo != 0 && consulta != 0)
             {
                 btnGO.Enabled = true;
             }
@@ -182,7 +183,7 @@ namespace Proj_Frag_App
                                 break;
                             case 3:
                                 // CONSULTA F
-                                com.CommandText = "cf_updateShip"; 
+                                com.CommandText = "cf_updateShip";
                                 com.CommandType = CommandType.StoredProcedure;
                                 com.Parameters.AddWithValue("@method", txtCF1.Text).Direction = ParameterDirection.Input;
                                 com.Parameters.AddWithValue("@salesID", txtCF2.Text).Direction = ParameterDirection.Input;
@@ -246,7 +247,8 @@ namespace Proj_Frag_App
                 }
 
                 //validacion
-                if (ds.Tables[0].Rows.Count > 0){
+                if (ds.Tables[0].Rows.Count > 0)
+                {
                     string v = ds.Tables[0].Rows[0][0].ToString();
                     switch (v)
                     {
@@ -285,8 +287,8 @@ namespace Proj_Frag_App
                         default:
                             break;
                     }
-                } 
-                
+                }
+
             }
             catch (Exception ex)
             {
