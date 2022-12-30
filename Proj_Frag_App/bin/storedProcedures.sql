@@ -138,6 +138,7 @@ begin
 					set OrderQty = OrderQty + @qty
 					where SalesOrderID = @salesID and ProductID = @productID
 
+					/*Ahora las siguientes líneas comentadas irán en un trigger para el update de [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail 
 					declare @locationID int
 					set @locationID = (select top 1 LocationID from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
 						where ProductID = @productID and Quantity >= @qty) --asignando a que locación se le retirará stock
@@ -145,7 +146,7 @@ begin
 					--actualizando stock
 					update [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
 					set Quantity = Quantity - @qty
-					where ProductID = @productID and LocationID = @locationID
+					where ProductID = @productID and LocationID = @locationID*/
 
 					select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail 
 					where SalesOrderID = @salesID and ProductID = @productID
