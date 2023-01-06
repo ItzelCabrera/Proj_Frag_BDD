@@ -1,10 +1,10 @@
-use master
-go
+use AW_Sales
+
 --Para la consulta E: al actualizar la cantidad de productos de una orden que se provea como 
 --argumento, tambien se debe de actualizar el stock en el esquema "Producción"
-
+GO
 create OR ALTER trigger te_updateSalesProd
-on [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail 
+on AW_Sales.Sales.SalesOrderDetail 
 for update as
    if exists(	select top 1 LocationID from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
 				where ProductID in (select productid from inserted)
@@ -16,7 +16,7 @@ for update as
 				where ProductID in (select productid from inserted)) --asignando a que locación se le retirará stock
 
 			update [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
-			set Quantity = Quantity - @qty
+			set Quantity = Quantity - 1
 			where ProductID = (select productid   
 								from inserted)  and LocationID = @locationID
 
@@ -25,7 +25,4 @@ for update as
 		BEGIN
 			rollback
 		END
-	  
-
-
 go

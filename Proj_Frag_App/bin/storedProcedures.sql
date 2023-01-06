@@ -67,6 +67,7 @@ go
 
 /* c) Actualizar el stock disponible en un 5% de los productos de la categoría que se provea como argumento de entrada en una 
 localidad que se provea como entrada en la instrucción de actualización. */ 
+
 create or alter procedure cc_updateLocation (@localidad int, @cat int) as
 begin
 	if exists(select *
@@ -78,33 +79,41 @@ begin
 			where ProductCategoryID = @cat
 		)) 
 		begin
-			update [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
-			set Quantity = Quantity + ROUND((Quantity * 0.05), 0)
-			from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory as pii
-			where pii.LocationID = @localidad and
-			ProductID in (
-				select ProductID
-				from [LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory
-				where ProductCategoryID = @cat
-			)
+			begin tran			
+				begin try
+					update [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
+					set Quantity = Quantity + ROUND((Quantity * 0.05), 0)
+					from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory as pii
+					where pii.LocationID = @localidad and
+					ProductID in (
+						select ProductID
+						from [LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory
+						where ProductCategoryID = @cat
+					)
 
-			-- Mostrar cambio
-			select *
-			from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory as pii
-			where pii.LocationID = @localidad and
-			ProductID in (
-				select ProductID
-				from [LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory
-				where ProductCategoryID = @cat
-			)
+					-- Mostrar cambio
+					select *
+					from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory as pii
+					where pii.LocationID = @localidad and
+					ProductID in (
+						select ProductID
+						from [LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory
+						where ProductCategoryID = @cat
+					)
+					commit tran
+				end try
+				begin catch
+					SELECT 10
+					ROLLBACK tran
+				end catch
 		end
 	else
 		begin
-			if exists(select * from	 [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory as pii
+			if exists(select * from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory as pii
 					where pii.LocationID = @localidad)
 				select -3 -- No existe la Categoria
 			else
-				select -2 -- No existe lalocalidad
+				select -2 -- No existe la localidad
 		end
 end
 go
@@ -126,43 +135,48 @@ go
 /* e) Actualizar la cantidad de productos de una orden que se provea como argumento en la instrucción de actualización. */ 
 create or alter procedure ce_updateSales (@qty int, @salesID int, @productID int) as
 begin
-	
-	if exists(select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail 
-		where SalesOrderID = @salesID and ProductID = @productID)
+	BEGIN TRANSACTION 
+	BEGIN TRY
+		--actualizando venta
+		update [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail 
+		set OrderQty = OrderQty + @qty
+		where SalesOrderID = @salesID and ProductID = @productID
+
+		declare @locationID int
+		set @locationID = (select top 1 LocationID from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
+			where ProductID = @productID and Quantity >= @qty) --asignando a que locación se le retirará stock
+
+		--actualizando stock
+		update [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
+		set Quantity = Quantity - @qty
+		where ProductID = @productID and LocationID = @locationID
+
+		--mostramos los cambios
+		select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail 
+		where SalesOrderID = @salesID and ProductID = @productID
+
+		--confirmamos la transaccion
+		COMMIT TRANSACTION 
+	END TRY
+
+	BEGIN CATCH
+		--ocurrió un error, deshacemos los cambios 
+		ROLLBACK TRANSACTION
+		if not exists(select top 1 LocationID from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
+	    where ProductID = @productID and Quantity >= @qty )
 		begin
-			if exists(select top 1 LocationID from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
-						where ProductID = @productID and Quantity >= @qty )
-				begin
-					--actualizando venta
-					update [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail 
-					set OrderQty = OrderQty + @qty
-					where SalesOrderID = @salesID and ProductID = @productID
-
-					/*Ahora las siguientes líneas comentadas irán en un trigger para el update de [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail 
-					declare @locationID int
-					set @locationID = (select top 1 LocationID from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
-						where ProductID = @productID and Quantity >= @qty) --asignando a que locación se le retirará stock
-
-					--actualizando stock
-					update [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
-					set Quantity = Quantity - @qty
-					where ProductID = @productID and LocationID = @locationID*/
-
-					select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail 
-					where SalesOrderID = @salesID and ProductID = @productID
-				end
-			else
-				begin 
-					select -4 --en el caso de que no existan productos en existencia
-				end
-
+			select -4 --en el caso de que no existan productos en existencia
 		end
-	else
-		begin
+		if not exists(select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail 
+		where SalesOrderID = @salesID and ProductID = @productID)
+		begin 
 			select -5 --en caso de que el producto u orden no existen
 		end
+	END CATCH
 end
 go
+
+
 
 /* f) Actualizar el método de envío de una orden que se reciba como argumento en la instrucción de actualización. */
 create or alter procedure cf_updateShip (@method int,@salesID int) as
