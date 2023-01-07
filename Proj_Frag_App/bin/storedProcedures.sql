@@ -5,42 +5,44 @@ go
    para cada uno de los territorios registrados en la base de datos. */ 
 create or alter procedure ca_selectTotalProd (@cat int) as
 begin
-	BEGIN TRANSACTION 
-	BEGIN TRY
-		select soh.TerritoryID, sum(t.LineTotal) as total_venta
-		from [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader soh
-		inner join
-		(select salesorderid, productid, orderqty, linetotal
-		from [LS_AW_SALES].AW_Sales.Sales.salesorderdetail sod
-		where ProductID in (
-				select productid
-				from [LS_AW_PRODUCTION].AW_Production.Production.Product 
-				where ProductSubcategoryID in (
-					select ProductSubcategoryID
-					from [LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory
-					where ProductCategoryID in (
-						select ProductCategoryID
-						from [LS_AW_PRODUCTION].AW_Production.Production.ProductCategory
-						where ProductCategoryID = @cat 
-						)
+	IF EXISTS (select * from [LS_AW_PRODUCTION].AW_Production.Production.ProductCategory
+					where ProductCategoryID = @cat )
+	BEGIN 
+		BEGIN TRAN 
+		BEGIN TRY
+			select soh.TerritoryID, sum(t.LineTotal) as total_venta
+				from [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader soh
+				inner join
+				(select salesorderid, productid, orderqty, linetotal
+				from [LS_AW_SALES].AW_Sales.Sales.salesorderdetail sod
+				where ProductID in (
+						select productid
+						from [LS_AW_PRODUCTION].AW_Production.Production.Product 
+						where ProductSubcategoryID in (
+							select ProductSubcategoryID
+							from [LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory
+							where ProductCategoryID in (
+								select ProductCategoryID
+								from [LS_AW_PRODUCTION].AW_Production.Production.ProductCategory
+								where ProductCategoryID = @cat 
+								)
+							)
 					)
-			)
-		) as T
-		on soh.SalesOrderID = t.SalesOrderID
-		group by soh.TerritoryID
-		order by soh.TerritoryID
+				) as T
+				on soh.SalesOrderID = t.SalesOrderID
+				group by soh.TerritoryID
+				order by soh.TerritoryID
+			COMMIT TRANSACTION 
+		END TRY
 
-		--confirmamos la transaccion
-		COMMIT TRANSACTION 
-	END TRY
-
-	BEGIN CATCH
-		--ocurrió un error, deshacemos los cambios 
-		ROLLBACK TRANSACTION
-		if not exists(select * from [LS_AW_PRODUCTION].AW_Production.Production.ProductCategory
-					  where ProductCategoryID = @cat )
-			select -1 -- no existe la categoria
-	END CATCH
+		BEGIN CATCH
+			--ocurrió un error, deshacemos los cambios 
+			ROLLBACK TRANSACTION
+		END CATCH
+	END
+	ELSE
+		select -1 -- no existe la categoriae
+		
 end
 go
 
@@ -48,7 +50,7 @@ go
    “Noth America” y en que territorio de la región tiene mayor demanda. */
 create or alter procedure cb_selectMostProd as
 begin
-	BEGIN TRANSACTION 
+	BEGIN TRAN 
 	BEGIN TRY
 		select top 1 sum(T.lineTotal) as total_ventas, p.[Name] as Nombre, p.ProductID
 		from [LS_AW_PRODUCTION].AW_Production.Production.Product p
@@ -70,12 +72,12 @@ begin
 		order by total_ventas desc
 
 		--confirmamos la transaccion
-		COMMIT TRANSACTION 
+		COMMIT TRAN 
 	END TRY
 
 	BEGIN CATCH
 		--ocurrió un error, deshacemos los cambios 
-		ROLLBACK TRANSACTION
+		ROLLBACK TRAN
 	END CATCH
 end
 go
@@ -84,17 +86,31 @@ go
 localidad que se provea como entrada en la instrucción de actualización. */ 
 create or alter procedure cc_updateLocation (@localidad int, @cat int) as
 begin
-	BEGIN TRANSACTION 
-	BEGIN TRY
-		update [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
-			set Quantity = Quantity + ROUND((Quantity * 0.05), 0)
-			from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory as pii
-			where pii.LocationID = @localidad and
-			ProductID in (
-				select ProductID
-				from [LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory
-				where ProductCategoryID = @cat
-			)
+	if exists(select *
+		from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory as pii
+		where pii.LocationID = @localidad and
+		ProductID in (
+			select ProductID
+			from [LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory
+			where ProductCategoryID = @cat
+		)) 
+		begin
+			begin tran			
+				begin try
+					update [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
+					set Quantity = Quantity + ROUND((Quantity * 0.05), 0)
+					from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory as pii
+					where pii.LocationID = @localidad and
+					ProductID in (
+						select ProductID
+						from [LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory
+						where ProductCategoryID = @cat
+					)
+					commit tran
+				end try
+				begin catch
+					ROLLBACK tran
+				end catch
 
 			-- Mostrar cambio
 			select *
@@ -105,30 +121,15 @@ begin
 				from [LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory
 				where ProductCategoryID = @cat
 			)
-
-		--confirmamos la transaccion
-		COMMIT TRANSACTION 
-	END TRY
-
-	BEGIN CATCH
-		--ocurrió un error, deshacemos los cambios 
-		ROLLBACK TRANSACTION
-		if not exists(select *
-		from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory as pii
-		where pii.LocationID = @localidad and
-		ProductID in (
-			select ProductID
-			from [LS_AW_PRODUCTION].AW_Production.Production.ProductSubcategory
-			where ProductCategoryID = @cat
-		)) 
-		begin
-			if exists(select * from	 [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory as pii
-					  where pii.LocationID = @localidad)
-				select -3 -- No existe la Categoria
-			else
-				select -2 -- No existe la localidad
 		end
-	END CATCH
+	else
+		begin
+			if exists(select * from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory as pii
+					where pii.LocationID = @localidad)
+				select 3 -- No existe la Categoria
+			else
+				select 2 -- No existe lalocalidad
+		end
 end
 go
 
@@ -160,98 +161,110 @@ go
 /* e) Actualizar la cantidad de productos de una orden que se provea como argumento en la instrucción de actualización. */ 
 create or alter procedure ce_updateSales (@qty int, @salesID int, @productID int) as
 begin
-	BEGIN TRANSACTION 
-	BEGIN TRY
-		--actualizando venta
-		update [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail 
-		set OrderQty = OrderQty + @qty
-		where SalesOrderID = @salesID and ProductID = @productID
-
-		declare @locationID int
-		set @locationID = (select top 1 LocationID from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
-			where ProductID = @productID and Quantity >= @qty) --asignando a que locación se le retirará stock
-
-		--actualizando stock
-		update [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
-		set Quantity = Quantity - @qty
-		where ProductID = @productID and LocationID = @locationID
-
-		--mostramos los cambios
-		select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail 
-		where SalesOrderID = @salesID and ProductID = @productID
-
-		--confirmamos la transaccion
-		COMMIT TRANSACTION 
-	END TRY
-
-	BEGIN CATCH
-		--ocurrió un error, deshacemos los cambios 
-		ROLLBACK TRANSACTION
-		if not exists(select top 1 LocationID from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
+	if not exists(select top 1 LocationID from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
 	                  where ProductID = @productID and Quantity >= @qty )
-			select -4 --en el caso de que no existan productos en existencia
-		if not exists(select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail 
-		              where SalesOrderID = @salesID and ProductID = @productID)
-			select -5 --en caso de que el producto u orden no existen
-	END CATCH
+		select -4 --en el caso de que no existan productos en existencia
+	else if not exists(select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail 
+		            where SalesOrderID = @salesID and ProductID = @productID)
+		select -5 --en caso de que el producto u orden no existen
+	else
+	begin
+		BEGIN TRAN
+		BEGIN TRY
+		
+			--actualizando venta
+			update [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail 
+			set OrderQty = OrderQty + @qty
+			where SalesOrderID = @salesID and ProductID = @productID
+
+			declare @locationID int
+			set @locationID = (select top 1 LocationID from [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
+				where ProductID = @productID and Quantity >= @qty) --asignando a que locación se le retirará stock
+
+			--actualizando stock
+			update [LS_AW_PRODUCTION].AW_Production.Production.ProductInventory
+			set Quantity = Quantity - @qty
+			where ProductID = @productID and LocationID = @locationID
+
+			
+
+			--confirmamos la transaccion
+			COMMIT TRAN
+		END TRY
+
+		BEGIN CATCH
+			--ocurrió un error, deshacemos los cambios 
+			ROLLBACK TRAN
+		END CATCH
+		--mostramos los cambios
+			select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderDetail 
+			where SalesOrderID = @salesID and ProductID = @productID
+	end
 end
 go
 
 /* f) Actualizar el método de envío de una orden que se reciba como argumento en la instrucción de actualización. */
 create or alter procedure cf_updateShip (@method int,@salesID int) as
 begin
-	BEGIN TRANSACTION 
-	BEGIN TRY
-		update [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader
-		set ShipMethodID = @method
-		where SalesOrderID = @salesID
+	if not exists(select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader
+				    where SalesOrderID = @salesID)
+		select -7
+	else if not exists(select * from [LS_AW_OTHERS].AW_Others.Purchasing.ShipMethod
+				where ShipMethodID = @method)
+		select -6
+	else 
+	begin
+		BEGIN TRANSACTION 
+		BEGIN TRY
+		
+				update [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader
+				set ShipMethodID = @method
+				where SalesOrderID = @salesID
+
+			--confirmamos la transaccion
+			COMMIT TRANSACTION 
+		END TRY
+
+		BEGIN CATCH
+			--ocurrió un error, deshacemos los cambios 
+			ROLLBACK TRANSACTION
+		END CATCH
 
 		select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader
-		where SalesOrderID = @salesID
-
-		--confirmamos la transaccion
-		COMMIT TRANSACTION 
-	END TRY
-
-	BEGIN CATCH
-		--ocurrió un error, deshacemos los cambios 
-		ROLLBACK TRANSACTION
-		if not exists(select * from [LS_AW_SALES].AW_Sales.Sales.SalesOrderHeader
-				      where SalesOrderID = @salesID)
-			select -7
-		if not exists(select * from [LS_AW_OTHERS].AW_Others.Purchasing.ShipMethod
-				  where ShipMethodID = @method)
-		    select -6
-	END CATCH
+				where SalesOrderID = @salesID
+	end
 end
 go
 
 /* g) Actualizar el correo electrónico de una cliente que se reciba como argumento en la instrucción de actualización. */
 create or alter procedure cg_updateEmail (@customerID int,@newEmail nvarchar(50)) as
 begin
-	BEGIN TRANSACTION 
-	BEGIN TRY
-		update [LS_AW_OTHERS].AW_Others.Person.EmailAddress	
-		set EmailAddress = @newEmail
-		where BusinessEntityID = (
-				select PersonID from [LS_AW_SALES].AW_Sales.Sales.Customer
-				where CustomerID = @customerID)
+	if not exists(select * from [LS_AW_SALES].AW_Sales.Sales.Customer
+				where CustomerID = @customerID and PersonID is not null)
+		select -8
+	else 
+	begin
+		BEGIN TRANSACTION 
+		BEGIN TRY
+		
+				update [LS_AW_OTHERS].AW_Others.Person.EmailAddress	
+				set EmailAddress = @newEmail
+				where BusinessEntityID = (
+						select PersonID from [LS_AW_SALES].AW_Sales.Sales.Customer
+						where CustomerID = @customerID)
 
+			--confirmamos la transaccion
+			COMMIT TRANSACTION 
+		END TRY
+
+		BEGIN CATCH
+			--ocurrió un error, deshacemos los cambios 
+			ROLLBACK TRANSACTION
+		END CATCH
 		select * from [LS_AW_OTHERS].AW_Others.Person.EmailAddress
-		where BusinessEntityID = (
-			select PersonID from [LS_AW_SALES].AW_Sales.Sales.Customer
-			where CustomerID = @customerID)
-
-		--confirmamos la transaccion
-		COMMIT TRANSACTION 
-	END TRY
-
-	BEGIN CATCH
-		--ocurrió un error, deshacemos los cambios 
-		ROLLBACK TRANSACTION
-		if not exists(select * from [LS_AW_SALES].AW_Sales.Sales.Customer
-				  where CustomerID = @customerID and PersonID is not null)
-			select -8
-	END CATCH
+				where BusinessEntityID = (
+					select PersonID from [LS_AW_SALES].AW_Sales.Sales.Customer
+					where CustomerID = @customerID)
+	end
 end
 go

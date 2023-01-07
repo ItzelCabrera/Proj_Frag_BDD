@@ -39,6 +39,14 @@ begin
 		  @location='',  
 		  @provstr='',  
 		  @catalog='AW_Production'; 
+		  
+		exec sp_addlinkedsrvlogin  
+		  @rmtsrvname = 'LS_AW_PRODUCTION',  
+		  @useself = 'false',  
+		  @rmtuser = 'alumno',
+		  @rmtpassword = 'Estudiante';
+
+		exec sp_serveroption 'LS_AW_PRODUCTION', 'rpc out', true;  
 	end
 
 	IF 'LS_AW_SALES' NOT IN (SELECT NAME FROM sys.servers)
@@ -52,6 +60,14 @@ begin
 		  @location='',  
 		  @provstr='',  
 		  @catalog='AW_Sales'; 
+
+		exec sp_addlinkedsrvlogin  
+		  @rmtsrvname = 'LS_AW_SALES',  
+		  @useself = 'false',  
+		  @rmtuser = 'alumno',
+		  @rmtpassword = 'Estudiante';
+
+		exec sp_serveroption 'LS_AW_SALES', 'rpc out', true;  
 	end
 
 	IF 'LS_AW_OTHERS' NOT IN (SELECT NAME FROM sys.servers)
@@ -64,7 +80,15 @@ begin
 		  @datasrc=@ds_3,   
 		  @location='',  
 		  @provstr='',  
-		  @catalog='AW_Others'; 
+		  @catalog='AW_Others';  
+
+		exec sp_addlinkedsrvlogin  
+		  @rmtsrvname = 'LS_AW_OTHERS',  
+		  @useself = 'false',  
+		  @rmtuser = 'alumno',
+		  @rmtpassword = 'Estudiante';
+
+		exec sp_serveroption 'LS_AW_OTHERS', 'rpc out', true;  
 	end
 
 end
