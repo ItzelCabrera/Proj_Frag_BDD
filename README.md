@@ -10,6 +10,13 @@ Proyecto sobre fragmentación por esquemas y consultas distribuidas
 ## Instrucciones
 Ejecutar la aplicación localizada en \Proj_Frag_App\bin\Debug\Proj_Frag_App.exe.
 
+## Observaciones del módulo de transacciones distribuidas
+A lo largo de la practica se aplicaron transacción distribuidas dadas las consultas de la practica previa, se aplicaron a todas ya que se buscaba solucionar los problemas de concurrencia dado el sistema distribuido planteado.
+El primer inconveniente de esto fue que anteriormente se utilizaron servidores vinculados a servidores en Azure, esta solución en la nube no permite ejecutar correctamente transacciones distribuidas. 
+Un primer factor se debe a que no se permite realizar transacciones distribuidas a servidores autoreferenciados; se planteó resolver esto al correr las consultas conectándose a tres máquinas distintas, cada una con un fragmento de la base de datos. 
+A pesar de ello, se tuvieron problemas con el coordinador de transacciones distribuidas de Microsoft y aunque se configuraron los procesos/propiedades pertinentes, seguía marcando un error al realizar las transacciones distribuidas.
+El posible causante de este problema podría ser el NAT y que los puertos involucrados estén bloqueados para realizar dichas transacciones. 
+
 ## Especificaciones del proyecto
 
 1. Considerando el modelo relacional de la base de datos AdventureWorks.
